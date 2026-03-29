@@ -44,6 +44,13 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+        <!-- Cloudflare Web Analytics -->
+        <script
+            defer
+            src="https://static.cloudflareinsights.com/beacon.min.js"
+            data-cf-beacon='{"token": "b37a29beae364749a0ac2dc1422cb005"}'
+        ></script>
+        <!-- End Cloudflare Web Analytics -->
     </head>
     <body>
         <div id="root"></div>
@@ -3019,20 +3026,90 @@
                                     },
                                     "Sharper objectives. Clearer outcomes.",
                                 ),
-                                h("div",{style:{display:"flex",alignItems:"center",gap:14}},
-                                  h("svg",{width:52,height:52,viewBox:"0 0 24 24",fill:"none",xmlns:"http://www.w3.org/2000/svg",style:{flexShrink:0}},
-                                    h("rect",{x:1,y:1,width:22,height:22,rx:5,fill:"#0D182B",stroke:"#1A2940",strokeWidth:0.5}),
-                                    h("g",{fill:"rgba(255,255,255,0.18)"},
-                                      h("circle",{cx:6,cy:14,r:0.6}),
-                                      h("circle",{cx:8,cy:16,r:0.6}),
-                                      h("circle",{cx:10,cy:18,r:0.6}),
-                                      h("circle",{cx:5,cy:18,r:0.6}),
-                                      h("circle",{cx:7,cy:20,r:0.6}),
-                                      h("circle",{cx:9,cy:14,r:0.6})
+                                h(
+                                    "div",
+                                    {
+                                        style: {
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: 14,
+                                        },
+                                    },
+                                    h(
+                                        "svg",
+                                        {
+                                            width: 52,
+                                            height: 52,
+                                            viewBox: "0 0 24 24",
+                                            fill: "none",
+                                            xmlns: "http://www.w3.org/2000/svg",
+                                            style: { flexShrink: 0 },
+                                        },
+                                        h("rect", {
+                                            x: 1,
+                                            y: 1,
+                                            width: 22,
+                                            height: 22,
+                                            rx: 5,
+                                            fill: "#0D182B",
+                                            stroke: "#1A2940",
+                                            strokeWidth: 0.5,
+                                        }),
+                                        h(
+                                            "g",
+                                            { fill: "rgba(255,255,255,0.18)" },
+                                            h("circle", {
+                                                cx: 6,
+                                                cy: 14,
+                                                r: 0.6,
+                                            }),
+                                            h("circle", {
+                                                cx: 8,
+                                                cy: 16,
+                                                r: 0.6,
+                                            }),
+                                            h("circle", {
+                                                cx: 10,
+                                                cy: 18,
+                                                r: 0.6,
+                                            }),
+                                            h("circle", {
+                                                cx: 5,
+                                                cy: 18,
+                                                r: 0.6,
+                                            }),
+                                            h("circle", {
+                                                cx: 7,
+                                                cy: 20,
+                                                r: 0.6,
+                                            }),
+                                            h("circle", {
+                                                cx: 9,
+                                                cy: 14,
+                                                r: 0.6,
+                                            }),
+                                        ),
+                                        h("path", {
+                                            d: "M5 5 L19 19",
+                                            stroke: "#E6B85C",
+                                            strokeWidth: 2,
+                                            strokeLinecap: "round",
+                                        }),
                                     ),
-                                    h("path",{d:"M5 5 L19 19",stroke:"#E6B85C",strokeWidth:2,strokeLinecap:"round"})
-                                  ),
-                                  h("h1",{style:{fontSize:56,lineHeight:1.02,fontWeight:800,letterSpacing:-2.2,margin:0,color:C.text}},"Clear Cut")
+                                    h(
+                                        "h1",
+                                        {
+                                            style: {
+                                                fontSize: 56,
+                                                lineHeight: 1.02,
+                                                fontWeight: 800,
+                                                letterSpacing: -2.2,
+                                                margin: 0,
+                                                color: C.text,
+                                            },
+                                        },
+                                        "Clear Cut",
+                                    ),
                                 ),
                             ),
                             h(
