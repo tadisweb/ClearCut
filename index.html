@@ -2320,7 +2320,11 @@
                     return (
                         a +
                         (objs[c.id] || []).filter(function (o) {
-                            return o.title.trim();
+                            return (
+                                (o.title && o.title.trim()) ||
+                                (o.detail && o.detail.trim()) ||
+                                (o.measure && o.measure.trim())
+                            );
                         }).length
                     );
                 }, 0);
@@ -2348,7 +2352,11 @@
                         "\n\n";
                     CATS.forEach(function (c) {
                         var os = (objs[c.id] || []).filter(function (o) {
-                            return o.title.trim();
+                            return (
+                                (o.title && o.title.trim()) ||
+                                (o.detail && o.detail.trim()) ||
+                                (o.measure && o.measure.trim())
+                            );
                         });
                         t +=
                             c.icon +
@@ -2360,11 +2368,19 @@
                         if (!os.length) t += "   [Not entered]\n\n";
                         else {
                             os.forEach(function (o, i) {
+                                var fallbackTitle =
+                                    c.id === "financials"
+                                        ? "Financial Objective " + (i + 1)
+                                        : c.id === "other"
+                                          ? "Above BAU Project " + (i + 1)
+                                          : "People Objective " + (i + 1);
+                                var displayTitle =
+                                    (o.title && o.title.trim()) || fallbackTitle;
                                 t +=
                                     "\n   Objective " +
                                     (i + 1) +
                                     ": " +
-                                    o.title +
+                                    displayTitle +
                                     "\n";
                                 if (o.detail)
                                     t += "   Detail: " + o.detail + "\n";
@@ -2419,15 +2435,25 @@
                     ];
                     CATS.forEach(function (c) {
                         var os = (objs[c.id] || []).filter(function (o) {
-                            return o.title.trim();
+                            return (
+                                (o.title && o.title.trim()) ||
+                                (o.detail && o.detail.trim()) ||
+                                (o.measure && o.measure.trim())
+                            );
                         });
                         if (os.length) {
                             os.forEach(function (o, i) {
+                                var fallbackTitle =
+                                    c.id === "financials"
+                                        ? "Financial Objective " + (i + 1)
+                                        : c.id === "other"
+                                          ? "Above BAU Project " + (i + 1)
+                                          : "People Objective " + (i + 1);
                                 rows.push([
                                     "What (70%)",
                                     c.label,
                                     (i + 1).toString(),
-                                    o.title,
+                                    (o.title && o.title.trim()) || fallbackTitle,
                                     o.detail,
                                     o.measure,
                                 ]);
@@ -2775,7 +2801,11 @@
                     ),
                     CATS.map(function (c) {
                         var os = (objs[c.id] || []).filter(function (o) {
-                            return o.title.trim();
+                            return (
+                                (o.title && o.title.trim()) ||
+                                (o.detail && o.detail.trim()) ||
+                                (o.measure && o.measure.trim())
+                            );
                         });
                         return h(
                             Box,
@@ -2822,6 +2852,14 @@
                                       "Not entered",
                                   )
                                 : os.map(function (o, i) {
+                                      var fallbackTitle =
+                                          c.id === "financials"
+                                              ? "Financial Objective " + (i + 1)
+                                              : c.id === "other"
+                                                ? "Above BAU Project " + (i + 1)
+                                                : "People Objective " + (i + 1);
+                                      var displayTitle =
+                                          (o.title && o.title.trim()) || fallbackTitle;
                                       return h(
                                           "div",
                                           {
@@ -2842,7 +2880,7 @@
                                                       marginBottom: 3,
                                                   },
                                               },
-                                              o.title,
+                                              displayTitle,
                                           ),
                                           o.detail &&
                                               h(
