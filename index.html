@@ -71,7 +71,7 @@
     <body>
         <div id="root"></div>
         <script type="text/babel">
-            const { useState } = React;
+            const { useState, useEffect } = React;
             const h = React.createElement;
 
             const C = {
@@ -720,6 +720,27 @@
                 { id: "review", label: "Review & Export", icon: "review" },
             ];
 
+            function pctLabel(value) {
+                var n = parseFloat(value);
+                if (isNaN(n)) return value + "%";
+                return (Math.round(n * 10) / 10).toString().replace(/\.0$/, "") + "%";
+            }
+
+            function catOverallPct(framework, key) {
+                var what = parseFloat(framework.what);
+                var sub = parseFloat(framework[key]);
+                if (isNaN(what) || isNaN(sub)) return 0;
+                return (what * sub) / 100;
+            }
+
+            function catFallbackLabel(catId, idx) {
+                return catId === "financials"
+                    ? "Financial Objective " + (idx + 1)
+                    : catId === "other"
+                      ? "Above BAU Project " + (idx + 1)
+                      : "People Objective " + (idx + 1);
+            }
+
             // Components
             function Tag({ children, color, bg }) {
                 return h(
@@ -1103,7 +1124,7 @@
             }
 
             // Welcome
-            function Welcome({ go }) {
+            function Welcome({ go, framework }) {
                 return h(
                     "div",
                     null,
@@ -1256,9 +1277,9 @@
                                 ),
                                 "the ",
                                 h("em", null, "'What'"),
-                                " you deliver (70%) and the ",
+                                " you deliver (" + pctLabel(framework.what) + ") and the ",
                                 h("em", null, "'How'"),
-                                " (30%). Strong performance comes from both impact and behaviour.",
+                                " (" + pctLabel(framework.how) + "). Strong performance comes from both impact and behaviour.",
                             ),
                             h(
                                 "p",
@@ -1379,218 +1400,369 @@
                 );
             }
 
+
+            function OverviewStepCard({ title, subtitle, status, valueText, helpText, children }) {
+                function statusColor(status) {
+                    return status === "good"
+                        ? C.success
+                        : status === "danger"
+                          ? C.danger
+                          : C.warn;
+                }
+                function statusBg(status) {
+                    return status === "good"
+                        ? "rgba(34,197,94,0.10)"
+                        : status === "danger"
+                          ? "rgba(239,68,68,0.10)"
+                          : "rgba(230,184,92,0.10)";
+                }
+                return h(
+                    Box,
+                    { style: { marginBottom: 24, border: "1px solid " + statusColor(status), background: statusBg(status) } },
+                    h(
+                        "div",
+                        { style: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 16, flexWrap: "wrap" } },
+                        h(
+                            "div",
+                            null,
+                            h(
+                                "div",
+                                { style: { fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 6 } },
+                                title,
+                            ),
+                            h(
+                                "div",
+                                { style: { fontSize: 13, color: C.textMid, lineHeight: 1.7, maxWidth: 760 } },
+                                subtitle,
+                            ),
+                        ),
+                        h(
+                            "div",
+                            { style: { padding: "10px 14px", background: C.bgSoft, border: "1px solid " + statusColor(status), minWidth: 160 } },
+                            h(
+                                "div",
+                                { style: { fontSize: 10, fontWeight: 700, letterSpacing: 0.8, textTransform: "uppercase", color: statusColor(status), marginBottom: 4 } },
+                                "Validation",
+                            ),
+                            h(
+                                "div",
+                                { style: { fontSize: 22, fontWeight: 800, color: C.text, marginBottom: 4 } },
+                                valueText,
+                            ),
+                            h(
+                                "div",
+                                { style: { fontSize: 11, color: C.textMid, lineHeight: 1.5 } },
+                                helpText,
+                            ),
+                        ),
+                    ),
+                    children,
+                );
+            }
+
             // Overview
-            function Overview() {
+            function Overview({ framework, setFramework }) {
+                var what = parseFloat(framework.what);
+                var how = parseFloat(framework.how);
+                var fin = parseFloat(framework.financials);
+                var oth = parseFloat(framework.other);
+                var ppl = parseFloat(framework.people);
+
+                var overallTotal = (isNaN(what) ? 0 : what) + (isNaN(how) ? 0 : how);
+                var catSum =
+                    (isNaN(fin) ? 0 : fin) +
+                    (isNaN(oth) ? 0 : oth) +
+                    (isNaN(ppl) ? 0 : ppl);
+
+                var finOverall = catOverallPct(framework, "financials");
+                var othOverall = catOverallPct(framework, "other");
+                var pplOverall = catOverallPct(framework, "people");
+
+                function approxZero(n) {
+                    return Math.abs(n) < 0.001;
+                }
+                function overallStatus() {
+                    if (isNaN(what) || isNaN(how)) return "warn";
+                    if (approxZero(overallTotal - 100)) return "good";
+                    return overallTotal > 100 ? "danger" : "warn";
+                }
+                function whatStatus() {
+                    if (isNaN(fin) || isNaN(oth) || isNaN(ppl)) return "warn";
+                    if (approxZero(catSum - 100)) return "good";
+                    return catSum > 100 ? "danger" : "warn";
+                }
+                function statusColor(status) {
+                    return status === "good"
+                        ? C.success
+                        : status === "danger"
+                          ? C.danger
+                          : C.warn;
+                }
+                function statusBg(status) {
+                    return status === "good"
+                        ? "rgba(34,197,94,0.10)"
+                        : status === "danger"
+                          ? "rgba(239,68,68,0.10)"
+                          : "rgba(230,184,92,0.10)";
+                }
+                function statusText(status, good, warn, danger) {
+                    return status === "good"
+                        ? good
+                        : status === "danger"
+                          ? danger
+                          : warn;
+                }
+                function pctLabel(n) {
+                    if (isNaN(n)) return "—";
+                    var rounded = Math.round(n * 10) / 10;
+                    return (rounded % 1 === 0 ? rounded.toFixed(0) : rounded.toFixed(1)) + "%";
+                }
+                function safePct(n) {
+                    if (isNaN(n)) return 0;
+                    return Math.max(0, Math.min(n, 100));
+                }
+                function updateFramework(field, value) {
+                    setFramework(function (p) {
+                        var n = Object.assign({}, p);
+                        n[field] = value;
+                        return n;
+                    });
+                }
+                function fieldStyle(status) {
+                    return {
+                        width: "100%",
+                        padding: "14px 16px",
+                        border: "2px solid " + statusColor(status),
+                        background: C.bgSoft,
+                        color: C.text,
+                        fontSize: 24,
+                        fontWeight: 800,
+                        boxSizing: "border-box",
+                    };
+                }
+
+
                 return h(
                     "div",
                     null,
                     h(
                         "div",
-                        { style: { textAlign: "center", marginBottom: 32 } },
+                        { style: { textAlign: "center", marginBottom: 28 } },
                         h(
                             "h2",
-                            {
-                                style: {
-                                    fontSize: 32,
-                                    fontWeight: 800,
-                                    color: C.text,
-                                },
-                            },
+                            { style: { fontSize: 32, fontWeight: 800, color: C.text } },
                             "The Framework",
                         ),
                         h(
                             "p",
-                            {
-                                style: {
-                                    color: C.textMid,
-                                    fontSize: 14,
-                                    marginTop: 6,
-                                },
-                            },
-                            "Two dimensions: ",
-                            h("strong", null, "'What'"),
-                            " you deliver (70%) and ",
-                            h("strong", null, "'How'"),
-                            " (30%).",
+                            { style: { color: C.textMid, fontSize: 14, marginTop: 6, maxWidth: 760, marginLeft: "auto", marginRight: "auto", lineHeight: 1.8 } },
+                            "Use this page to decide how much weight sits in The What and The How, then split The What across the three objective sections.",
                         ),
                     ),
                     h(
-                        "div",
-                        {
-                            style: {
-                                display: "flex",
-                                gap: 12,
-                                marginBottom: 24,
-                                flexWrap: "wrap",
-                            },
-                        },
-                        // 70% What
+                        Box,
+                        { style: { marginBottom: 24 } },
                         h(
-                            Box,
-                            { style: { flex: "1 1 280px" } },
+                            "div",
+                            { style: { display: "flex", alignItems: "center", gap: 10, marginBottom: 14 } },
+                            h(Glyph, { name: "chart", size: 20, color: C.text, accent: "#22C55E" }),
+                            h("h3", { style: { margin: 0, fontSize: 18, fontWeight: 800, color: C.text } }, "At a glance"),
+                        ),
+                        h(
+                            "div",
+                            { style: { fontSize: 12, color: C.textMid, lineHeight: 1.8, marginBottom: 18 } },
+                            "This view turns your framework into two simple bars so you can see the weighting visually. The first row shows the full 100% split between The What and The How. The second row shows how The What is divided across the three objective sections.",
+                        ),
+                        h(
+                            "div",
+                            { style: { marginBottom: 22 } },
                             h(
                                 "div",
-                                {
-                                    style: {
-                                        fontSize: 28,
-                                        fontWeight: 800,
-                                        color: C.teal,
-                                    },
-                                },
-                                "70%",
+                                { style: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 8, flexWrap: "wrap" } },
+                                h("div", { style: { fontSize: 12, color: C.textMid } }, pctLabel(what), " The What · ", pctLabel(how), " The How"),
                             ),
                             h(
                                 "div",
-                                {
-                                    style: {
-                                        fontSize: 11,
-                                        fontWeight: 700,
-                                        color: C.textLight,
-                                        textTransform: "uppercase",
-                                        letterSpacing: 1,
-                                        margin: "4px 0 16px",
-                                    },
-                                },
-                                "The What \u2014 Individual Goals",
-                            ),
-                            [
-                                {
-                                    l: "Financial Objectives",
-                                    w: "35%",
-                                    c: C.blue,
-                                },
-                                {
-                                    l: "Above BAU Projects",
-                                    w: "20%",
-                                    c: "#E6B85C",
-                                },
-                                {
-                                    l: "People & Engagement",
-                                    w: "15%",
-                                    c: C.lime,
-                                },
-                            ].map(function (x) {
-                                return h(
+                                { style: { display: "flex", width: "100%", minHeight: 46, background: C.bgSoft, overflow: "hidden", border: "1px solid " + C.border } },
+                                h(
                                     "div",
                                     {
-                                        key: x.l,
                                         style: {
+                                            width: safePct(what) + "%",
+                                            background: "rgba(34,197,94,0.18)",
+                                            borderRight: "1px solid " + C.border,
                                             display: "flex",
                                             alignItems: "center",
+                                            justifyContent: "space-between",
+                                            padding: safePct(what) > 8 ? "0 14px" : "0 6px",
+                                            minWidth: safePct(what) > 0 ? 0 : "0",
                                             gap: 8,
-                                            marginBottom: 8,
                                         },
                                     },
-                                    h("div", {
+                                    safePct(what) > 10
+                                        ? [
+                                              h("span", { style: { fontSize: 12, fontWeight: 700, color: C.text } }, "The What"),
+                                              h("span", { style: { fontSize: 12, fontWeight: 800, color: C.teal, whiteSpace: "nowrap" } }, pctLabel(what)),
+                                          ]
+                                        : safePct(what) > 0
+                                          ? h("span", { style: { fontSize: 10, fontWeight: 800, color: C.teal, whiteSpace: "nowrap" } }, pctLabel(what))
+                                          : null,
+                                ),
+                                h(
+                                    "div",
+                                    {
                                         style: {
-                                            width: 6,
-                                            height: 6,
-                                            background: x.c,
-                                            flexShrink: 0,
+                                            width: safePct(how) + "%",
+                                            background: "rgba(239,68,68,0.14)",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "space-between",
+                                            padding: safePct(how) > 8 ? "0 14px" : "0 6px",
+                                            minWidth: safePct(how) > 0 ? 0 : "0",
+                                            gap: 8,
                                         },
-                                    }),
-                                    h(
-                                        "div",
-                                        {
-                                            style: {
-                                                flex: 1,
-                                                fontSize: 13,
-                                                color: C.text,
-                                            },
-                                        },
-                                        x.l,
-                                    ),
-                                    h(
-                                        Tag,
-                                        { color: C.textMid, bg: C.bgSoft },
-                                        x.w,
-                                    ),
-                                );
-                            }),
+                                    },
+                                    safePct(how) > 10
+                                        ? [
+                                              h("span", { style: { fontSize: 12, fontWeight: 700, color: C.text } }, "The How"),
+                                              h("span", { style: { fontSize: 12, fontWeight: 800, color: C.danger, whiteSpace: "nowrap" } }, pctLabel(how)),
+                                          ]
+                                        : safePct(how) > 0
+                                          ? h("span", { style: { fontSize: 10, fontWeight: 800, color: C.danger, whiteSpace: "nowrap" } }, pctLabel(how))
+                                          : null,
+                                ),
+                            ),
                         ),
-                        // 30% How
                         h(
-                            Box,
-                            { style: { flex: "1 1 280px" } },
+                            "div",
+                            null,
                             h(
                                 "div",
-                                {
-                                    style: {
-                                        fontSize: 28,
-                                        fontWeight: 800,
-                                        color: C.navy,
-                                    },
-                                },
-                                "30%",
+                                { style: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 8, flexWrap: "wrap" } },
+                                h("div", { style: { fontSize: 12, color: C.textMid } }, pctLabel(fin), " Financial · ", pctLabel(oth), " Above BAU · ", pctLabel(ppl), " People"),
                             ),
                             h(
                                 "div",
-                                {
-                                    style: {
-                                        fontSize: 11,
-                                        fontWeight: 700,
-                                        color: C.textLight,
-                                        textTransform: "uppercase",
-                                        letterSpacing: 1,
-                                        margin: "4px 0 16px",
-                                    },
-                                },
-                                "The How \u2014 Behavioural Dimensions in Action",
-                            ),
-                            h(
-                                "p",
-                                {
-                                    style: {
-                                        fontSize: 13,
-                                        color: C.textMid,
-                                        margin: "0 0 12px",
-                                        lineHeight: 1.8,
-                                    },
-                                },
-                                "The four leadership behaviours below are the core of the 'How'. Pick 1\u20132 based on your role, strengths, and development areas.",
-                            ),
-                            h(
-                                "div",
-                                {
-                                    style: {
-                                        display: "flex",
-                                        flexWrap: "wrap",
-                                        gap: 6,
-                                    },
-                                },
-                                HOWS.map(function (b) {
+                                { style: { display: "flex", width: safePct(what) + "%", minHeight: 58, background: C.bgSoft, overflow: "hidden", border: "1px solid " + C.border, marginBottom: 12 } },
+                                [
+                                    { label: "Financial", share: fin, overall: finOverall, color: "rgba(30,107,214,0.22)", accent: C.blue },
+                                    { label: "Above BAU", share: oth, overall: othOverall, color: "rgba(230,184,92,0.22)", accent: "#E6B85C" },
+                                    { label: "People", share: ppl, overall: pplOverall, color: "rgba(34,197,94,0.18)", accent: "#22C55E" },
+                                ].map(function (seg, i) {
                                     return h(
                                         "div",
                                         {
-                                            key: b.id,
+                                            key: i,
                                             style: {
-                                                padding: "5px 12px",
-                                                background: C.bgMuted,
-                                                fontSize: 12,
-                                                fontWeight: 700,
-                                                color: C.text,
+                                                width: safePct(seg.share) + "%",
+                                                background: seg.color,
+                                                borderRight: i < 2 ? "1px solid " + C.border : "none",
                                                 display: "flex",
                                                 alignItems: "center",
-                                                gap: 6,
+                                                justifyContent: "flex-start",
+                                                padding: safePct(seg.share) > 10 ? "8px 12px" : "6px 5px",
                                             },
                                         },
-                                        h(Glyph, {
-                                            name: b.icon,
-                                            size: 14,
-                                            color: C.textMid,
-                                            accent: b.color || C.teal,
-                                        }),
-                                        b.label,
+                                        safePct(seg.share) > 14
+                                            ? h("div", { style: { display: "flex", flexDirection: "column", gap: 2, width: "100%" } },
+                                                  h("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6 } },
+                                                      h("span", { style: { fontSize: 12, fontWeight: 700, color: C.text } }, seg.label),
+                                                      h("span", { style: { fontSize: 12, fontWeight: 800, color: seg.accent, whiteSpace: "nowrap" } }, pctLabel(seg.share)),
+                                                  ),
+                                                  h("span", { style: { fontSize: 10, color: C.textMid } }, "(" + pctLabel(seg.overall) + " overall)"),
+                                              )
+                                            : safePct(seg.share) > 0
+                                              ? h("span", { style: { fontSize: 10, fontWeight: 800, color: seg.accent, whiteSpace: "nowrap" } }, pctLabel(seg.share))
+                                              : null,
                                     );
                                 }),
                             ),
+                        ),
+                    ),
+                    h(
+                        Box,
+                        { style: { marginBottom: 16 } },
+                        h(
+                            "div",
+                            { style: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 14, flexWrap: "wrap" } },
+                            h(
+                                "div",
+                                null,
+                                h("div", { style: { fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.8, color: C.textLight, marginBottom: 3 } }, "Step 1"),
+                                h("div", { style: { fontSize: 14, fontWeight: 700, color: C.text } }, "Set the overall split"),
+                            ),
+                            h(
+                                "div",
+                                { style: { display: "flex", alignItems: "center", gap: 8, padding: "5px 10px", background: C.bgSoft, border: "1px solid " + statusColor(overallStatus()) } },
+                                h("span", { style: { fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.8, color: statusColor(overallStatus()) } }, "Total"),
+                                h("span", { style: { fontSize: 14, fontWeight: 800, color: C.text } }, pctLabel(overallTotal)),
+                            ),
+                        ),
+                        h(
+                            "div",
+                            { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12 } },
+                            h(
+                                "div",
+                                { style: { background: C.card, padding: 14 } },
+                                h("div", { style: { fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.8, color: C.textLight, marginBottom: 8 } }, "The What"),
+                                h("input", { type: "number", step: "0.1", value: framework.what, onChange: function (e) { updateFramework("what", e.target.value); }, style: { width: "100%", padding: "8px 10px", border: "1.5px solid " + statusColor(overallStatus()), background: C.bgSoft, color: C.text, fontSize: 20, fontWeight: 800, boxSizing: "border-box" } }),
+                            ),
+                            h(
+                                "div",
+                                { style: { background: C.card, padding: 14 } },
+                                h("div", { style: { fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.8, color: C.textLight, marginBottom: 8 } }, "The How"),
+                                h("input", { type: "number", step: "0.1", value: framework.how, onChange: function (e) { updateFramework("how", e.target.value); }, style: { width: "100%", padding: "8px 10px", border: "1.5px solid " + statusColor(overallStatus()), background: C.bgSoft, color: C.text, fontSize: 20, fontWeight: 800, boxSizing: "border-box" } }),
+                            ),
+                        ),
+                    ),
+                    h(
+                        Box,
+                        { style: { marginBottom: 24 } },
+                        h(
+                            "div",
+                            { style: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 14, flexWrap: "wrap" } },
+                            h(
+                                "div",
+                                null,
+                                h("div", { style: { fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.8, color: C.textLight, marginBottom: 3 } }, "Step 2"),
+                                h("div", { style: { fontSize: 14, fontWeight: 700, color: C.text } }, "Split The What across the three sections"),
+                            ),
+                            h(
+                                "div",
+                                { style: { display: "flex", alignItems: "center", gap: 8, padding: "5px 10px", background: C.bgSoft, border: "1px solid " + statusColor(whatStatus()) } },
+                                h("span", { style: { fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.8, color: statusColor(whatStatus()) } }, "Total"),
+                                h("span", { style: { fontSize: 14, fontWeight: 800, color: C.text } }, pctLabel(catSum)),
+                            ),
+                        ),
+                        h(
+                            "div",
+                            { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12 } },
+                            [
+                                { key: "financials", label: "Financial", value: framework.financials, overall: finOverall, color: C.blue },
+                                { key: "other", label: "Above BAU", value: framework.other, overall: othOverall, color: "#E6B85C" },
+                                { key: "people", label: "People", value: framework.people, overall: pplOverall, color: "#22C55E" },
+                            ].map(function (x) {
+                                return h(
+                                    "div",
+                                    { key: x.key, style: { background: C.card, padding: 14 } },
+                                    h("div", { style: { fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.8, color: C.textLight, marginBottom: 8 } }, x.label),
+                                    h("input", { type: "number", step: "0.1", value: x.value, onChange: function (e) { updateFramework(x.key, e.target.value); }, style: { width: "100%", padding: "8px 10px", border: "1.5px solid " + statusColor(whatStatus()), background: C.bgSoft, color: C.text, fontSize: 20, fontWeight: 800, boxSizing: "border-box", marginBottom: 8 } }),
+                                    h(
+                                        "div",
+                                        { style: { display: "flex", alignItems: "baseline", gap: 5 } },
+                                        h("span", { style: { fontSize: 11, color: C.textLight } }, pctLabel(parseFloat(x.value)), " of The What"),
+                                        h("span", { style: { fontSize: 11, color: x.color, fontWeight: 700 } }, "· " + pctLabel(x.overall) + " overall"),
+                                    ),
+                                );
+                            }),
                         ),
                     ),
                 );
             }
 
             // Build
-            function Build({ objs, setObjs }) {
+            // Build
+            function Build({ objs, setObjs, framework }) {
                 var s = useState("financials");
                 var act = s[0],
                     setAct = s[1];
@@ -1694,7 +1866,7 @@
                                                 color: C.textLight,
                                             },
                                         },
-                                        c.weight,
+                                        pctLabel(catOverallPct(framework, c.id)) + " overall",
                                     ),
                                 ),
                             );
@@ -2315,7 +2487,7 @@
             }
 
             // Review
-            function ReviewTab({ objs, howObjs, setObjs, setHowObjs }) {
+            function ReviewTab({ objs, howObjs, setObjs, setHowObjs, framework }) {
                 var tw = CATS.reduce(function (a, c) {
                     return (
                         a +
@@ -2347,7 +2519,7 @@
                     var t =
                         "MY OBJECTIVES 2026/27\n" +
                         "=".repeat(50) +
-                        "\n\nTHE WHAT (70%)\n" +
+                        "\n\nTHE WHAT (" + pctLabel(framework.what) + ")\n" +
                         "-".repeat(30) +
                         "\n\n";
                     CATS.forEach(function (c) {
@@ -2363,7 +2535,7 @@
                             " " +
                             c.label.toUpperCase() +
                             " (" +
-                            c.weight +
+                            pctLabel(catOverallPct(framework, c.id)) +
                             ")\n";
                         if (!os.length) t += "   [Not entered]\n\n";
                         else {
@@ -2390,7 +2562,7 @@
                             t += "\n";
                         }
                     });
-                    t += "\nTHE HOW (30%)\n" + "-".repeat(30) + "\n\n";
+                    t += "\nTHE HOW (" + pctLabel(framework.how) + ")\n" + "-".repeat(30) + "\n\n";
                     HOWS.forEach(function (b) {
                         var d = howObjs[b.id];
                         if (d && d.objective && d.objective.trim()) {
@@ -2450,7 +2622,7 @@
                                           ? "Above BAU Project " + (i + 1)
                                           : "People Objective " + (i + 1);
                                 rows.push([
-                                    "What (70%)",
+                                    "What (" + pctLabel(framework.what) + ")",
                                     c.label,
                                     (i + 1).toString(),
                                     (o.title && o.title.trim()) || fallbackTitle,
@@ -2459,14 +2631,14 @@
                                 ]);
                             });
                         } else {
-                            rows.push(["What (70%)", c.label, "", "", "", ""]);
+                            rows.push(["What (" + pctLabel(framework.what) + ")", c.label, "", "", "", ""]);
                         }
                     });
                     HOWS.forEach(function (b) {
                         var d = howObjs[b.id];
                         if (d && d.objective && d.objective.trim()) {
                             rows.push([
-                                "How (30%)",
+                                "How (" + pctLabel(framework.how) + ")",
                                 b.label,
                                 "1",
                                 d.objective,
@@ -2474,7 +2646,7 @@
                                 "",
                             ]);
                         } else {
-                            rows.push(["How (30%)", b.label, "", "", "", ""]);
+                            rows.push(["How (" + pctLabel(framework.how) + ")", b.label, "", "", "", ""]);
                         }
                     });
                     var csv = rows
@@ -2837,7 +3009,7 @@
                                     },
                                     c.label,
                                 ),
-                                h(Tag, { bg: C.bgSoft }, c.weight),
+                                h(Tag, { bg: C.bgSoft }, pctLabel(catOverallPct(framework, c.id)) + " overall"),
                             ),
                             !os.length
                                 ? h(
@@ -3018,20 +3190,22 @@
 
             // App
             function App() {
-                var s1 = useState("welcome"),
+                var s1 = useState(function() { try { return localStorage.getItem("cc_tab") || "welcome"; } catch(e) { return "welcome"; } }),
                     tab = s1[0],
                     setTab = s1[1];
-                var s2 = useState({
-                    financials: [{ title: "", detail: "", measure: "" }],
-                    other: [{ title: "", detail: "", measure: "" }],
-                    people: [{ title: "", detail: "", measure: "" }],
+                useEffect(function() { try { localStorage.setItem("cc_tab", tab); } catch(e) {} }, [tab]);
+                var s2 = useState(function() {
+                    try { var v = localStorage.getItem("cc_objs"); return v ? JSON.parse(v) : { financials: [{ title: "", detail: "", measure: "" }], other: [{ title: "", detail: "", measure: "" }], people: [{ title: "", detail: "", measure: "" }] }; } catch(e) { return { financials: [{ title: "", detail: "", measure: "" }], other: [{ title: "", detail: "", measure: "" }], people: [{ title: "", detail: "", measure: "" }] }; }
                 });
-                var s3 = useState({
-                    lead: { objective: "", evidence: "" },
-                    shape: { objective: "", evidence: "" },
-                    connect: { objective: "", evidence: "" },
-                    deliver: { objective: "", evidence: "" },
+                var s3 = useState(function() {
+                    try { var v = localStorage.getItem("cc_howObjs"); return v ? JSON.parse(v) : { lead: { objective: "", evidence: "" }, shape: { objective: "", evidence: "" }, connect: { objective: "", evidence: "" }, deliver: { objective: "", evidence: "" } }; } catch(e) { return { lead: { objective: "", evidence: "" }, shape: { objective: "", evidence: "" }, connect: { objective: "", evidence: "" }, deliver: { objective: "", evidence: "" } }; }
                 });
+                var s4 = useState(function() {
+                    try { var v = localStorage.getItem("cc_framework"); return v ? JSON.parse(v) : { what: 70, how: 30, financials: 50, other: 28.6, people: 21.4 }; } catch(e) { return { what: 70, how: 30, financials: 50, other: 28.6, people: 21.4 }; }
+                });
+                useEffect(function() { try { localStorage.setItem("cc_objs", JSON.stringify(s2[0])); } catch(e) {} }, [s2[0]]);
+                useEffect(function() { try { localStorage.setItem("cc_howObjs", JSON.stringify(s3[0])); } catch(e) {} }, [s3[0]]);
+                useEffect(function() { try { localStorage.setItem("cc_framework", JSON.stringify(s4[0])); } catch(e) {} }, [s4[0]]);
                 return h(
                     "div",
                     {
@@ -3281,10 +3455,19 @@
                                     go: function () {
                                         setTab("overview");
                                     },
+                                    framework: s4[0],
                                 }),
-                            tab === "overview" && h(Overview),
+                            tab === "overview" &&
+                                h(Overview, {
+                                    framework: s4[0],
+                                    setFramework: s4[1],
+                                }),
                             tab === "build" &&
-                                h(Build, { objs: s2[0], setObjs: s2[1] }),
+                                h(Build, {
+                                    objs: s2[0],
+                                    setObjs: s2[1],
+                                    framework: s4[0],
+                                }),
                             tab === "how" &&
                                 h(HowTab, {
                                     howObjs: s3[0],
@@ -3296,6 +3479,7 @@
                                     howObjs: s3[0],
                                     setObjs: s2[1],
                                     setHowObjs: s3[1],
+                                    framework: s4[0],
                                 }),
                         ),
                     ),
