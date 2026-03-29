@@ -1,0 +1,3277 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Clear Cut — Helping you write Objectives</title>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            body {
+                font-family:
+                    "Plus Jakarta Sans",
+                    -apple-system,
+                    BlinkMacSystemFont,
+                    sans-serif;
+                background: #071326;
+                color: #e5e7eb;
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+            }
+            textarea:focus,
+            input:focus {
+                outline: none;
+            }
+            button {
+                font-family: inherit;
+                cursor: pointer;
+            }
+            ::selection {
+                background: #1e6bd6;
+                color: #fff;
+            }
+            #root {
+                min-height: 100vh;
+            }
+        </style>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+    </head>
+    <body>
+        <div id="root"></div>
+        <script type="text/babel">
+            const { useState } = React;
+            const h = React.createElement;
+
+            const C = {
+                navy: "#F3F4F6",
+                blue: "#F3F4F6",
+                teal: "#22C55E",
+                cyan: "#94A3B8",
+                lime: "#94A3B8",
+                pink: "#EF4444",
+                amber: "#94A3B8",
+                bg: "#07111F",
+                bgSoft: "#0A1526",
+                bgMuted: "#0D182B",
+                border: "#1A2940",
+                borderLight: "#132036",
+                text: "#F3F4F6",
+                textMid: "#B3BED0",
+                textLight: "#7F8A9B",
+                card: "#091423",
+                success: "#22C55E",
+                warn: "#E6B85C",
+                danger: "#EF4444",
+                gold: "#E6B85C",
+            };
+
+            function Glyph({
+                name,
+                size = 18,
+                color = C.text,
+                accent = C.teal,
+                stroke = 1.9,
+            }) {
+                const common = {
+                    fill: "none",
+                    stroke: color,
+                    strokeWidth: stroke,
+                    strokeLinecap: "round",
+                    strokeLinejoin: "round",
+                };
+                const a = {
+                    fill: "none",
+                    stroke: accent,
+                    strokeWidth: stroke,
+                    strokeLinecap: "round",
+                    strokeLinejoin: "round",
+                };
+                const svgProps = {
+                    width: size,
+                    height: size,
+                    viewBox: "0 0 24 24",
+                    style: { display: "block", flexShrink: 0 },
+                };
+                if (name === "chart")
+                    return h(
+                        "svg",
+                        svgProps,
+                        h("path", { ...common, d: "M4 19.5H20" }),
+                        h("path", { ...common, d: "M6 16V11" }),
+                        h("path", { ...a, d: "M11 16V7" }),
+                        h("path", { ...common, d: "M16 16V9" }),
+                    );
+                if (name === "spark")
+                    return h(
+                        "svg",
+                        svgProps,
+                        h("path", {
+                            ...a,
+                            d: "M12 3L13.8 8.2L19 10L13.8 11.8L12 17L10.2 11.8L5 10L10.2 8.2Z",
+                        }),
+                        h("path", {
+                            ...common,
+                            d: "M18.5 4.5L19 6L20.5 6.5L19 7L18.5 8.5L18 7L16.5 6.5L18 6Z",
+                        }),
+                    );
+                if (name === "team")
+                    return h(
+                        "svg",
+                        svgProps,
+                        h("circle", { ...common, cx: "8", cy: "9", r: "2.5" }),
+                        h("circle", { ...a, cx: "16", cy: "8", r: "2.5" }),
+                        h("path", {
+                            ...common,
+                            d: "M3.5 18c.8-2.5 2.4-3.8 4.5-3.8S11.7 15.5 12.5 18",
+                        }),
+                        h("path", {
+                            ...a,
+                            d: "M11.5 18c.7-2 2-3 4-3 1.9 0 3.2 1 4 3",
+                        }),
+                    );
+                if (name === "lead")
+                    return h(
+                        "svg",
+                        svgProps,
+                        h("circle", { ...a, cx: "12", cy: "7.5", r: "2.5" }),
+                        h("path", {
+                            ...common,
+                            d: "M7 20c.9-3.1 2.6-4.7 5-4.7s4.1 1.6 5 4.7",
+                        }),
+                        h("path", { ...a, d: "M12 3.5V1.8" }),
+                        h("path", { ...a, d: "M8.6 4.7L7.4 3.5" }),
+                        h("path", { ...a, d: "M15.4 4.7L16.6 3.5" }),
+                    );
+                if (name === "shape")
+                    return h(
+                        "svg",
+                        svgProps,
+                        h("path", {
+                            ...a,
+                            d: "M12 3.5l2.1 4.2 4.6.7-3.3 3.2.8 4.6L12 14l-4.2 2.2.8-4.6-3.3-3.2 4.6-.7Z",
+                        }),
+                        h("path", { ...common, d: "M12 18.2V21" }),
+                        h("path", { ...common, d: "M9 21h6" }),
+                    );
+                if (name === "connect")
+                    return h(
+                        "svg",
+                        svgProps,
+                        h("circle", { ...common, cx: "6", cy: "12", r: "2.2" }),
+                        h("circle", { ...a, cx: "18", cy: "7", r: "2.2" }),
+                        h("circle", { ...a, cx: "18", cy: "17", r: "2.2" }),
+                        h("path", { ...common, d: "M8.2 11l7.6-3" }),
+                        h("path", { ...common, d: "M8.2 13l7.6 3" }),
+                    );
+                if (name === "deliver")
+                    return h(
+                        "svg",
+                        svgProps,
+                        h("circle", {
+                            ...common,
+                            cx: "12",
+                            cy: "12",
+                            r: "7.5",
+                        }),
+                        h("circle", { ...a, cx: "12", cy: "12", r: "3.8" }),
+                        h("path", { ...a, d: "M12 4.5V2.5" }),
+                        h("path", { ...a, d: "M19.5 12h2" }),
+                        h("path", { ...a, d: "M12 19.5v2" }),
+                        h("path", { ...a, d: "M2.5 12h2" }),
+                    );
+                if (name === "home")
+                    return h(
+                        "svg",
+                        svgProps,
+                        h("path", { ...common, d: "M4 10.5L12 4l8 6.5" }),
+                        h("path", { ...a, d: "M6 10v9h12v-9" }),
+                    );
+                if (name === "framework")
+                    return h(
+                        "svg",
+                        svgProps,
+                        h("rect", {
+                            ...common,
+                            x: "4",
+                            y: "5",
+                            width: "16",
+                            height: "14",
+                        }),
+                        h("path", { ...a, d: "M4 10h16" }),
+                        h("path", { ...common, d: "M10 5v14" }),
+                    );
+                if (name === "build")
+                    return h(
+                        "svg",
+                        svgProps,
+                        h("path", { ...common, d: "M4 19.5h5.5" }),
+                        h("path", { ...a, d: "M14.7 4.3l5 5L10 19H5v-5z" }),
+                    );
+                if (name === "how")
+                    return h(
+                        "svg",
+                        svgProps,
+                        h("circle", { ...a, cx: "12", cy: "12", r: "7" }),
+                        h("path", { ...common, d: "M12 8v4l2.5 2.5" }),
+                    );
+                if (name === "review")
+                    return h(
+                        "svg",
+                        svgProps,
+                        h("rect", {
+                            ...common,
+                            x: "6",
+                            y: "4",
+                            width: "12",
+                            height: "16",
+                        }),
+                        h("path", { ...a, d: "M9 9h6" }),
+                        h("path", { ...a, d: "M9 13h6" }),
+                        h("path", { ...a, d: "M9 17h4" }),
+                    );
+                if (name === "money")
+                    return h(
+                        "svg",
+                        svgProps,
+                        h("rect", {
+                            ...common,
+                            x: "4",
+                            y: "6",
+                            width: "16",
+                            height: "12",
+                        }),
+                        h("circle", { ...a, cx: "12", cy: "12", r: "2.8" }),
+                    );
+                if (name === "write")
+                    return h(
+                        "svg",
+                        svgProps,
+                        h("rect", {
+                            ...common,
+                            x: "5",
+                            y: "4",
+                            width: "10",
+                            height: "15",
+                        }),
+                        h("path", { ...a, d: "M14 7l4 4" }),
+                        h("path", { ...a, d: "M12.7 8.3l4 4" }),
+                    );
+                if (name === "smart")
+                    return h(
+                        "svg",
+                        svgProps,
+                        h("rect", {
+                            ...common,
+                            x: "5",
+                            y: "5",
+                            width: "14",
+                            height: "14",
+                        }),
+                        h("path", { ...a, d: "M8.5 12l2.2 2.2L15.8 9" }),
+                    );
+                if (name === "mistake")
+                    return h(
+                        "svg",
+                        svgProps,
+                        h("circle", { ...a, cx: "12", cy: "12", r: "8" }),
+                        h("path", { ...a, d: "M8 8l8 8" }),
+                        h("path", { ...common, d: "M16 8l-8 8" }),
+                    );
+                return h("div", { style: { width: size, height: size } });
+            }
+
+            var SMART = [
+                {
+                    letter: "S",
+                    label: "Specific",
+                    color: C.blue,
+                    q: "Is it clear what you will do?",
+                    tip: "Avoid 'support', 'help with', 'contribute to'. Name the action and deliverable.",
+                    flags: [
+                        "support the team",
+                        "help with",
+                        "contribute to",
+                        "be involved in",
+                        "assist with",
+                        "work on various",
+                        "play a role",
+                        "engage with stakeholders",
+                        "drive improvements",
+                        "ensure alignment",
+                        "take part in",
+                        "participate in",
+                        "look into",
+                        "explore opportunities",
+                        "keep on top of",
+                        "stay across",
+                        "be responsible for various",
+                        "manage various",
+                    ],
+                    signs: [
+                        "deliver",
+                        "launch",
+                        "complete",
+                        "build",
+                        "implement",
+                        "secure",
+                        "achieve",
+                        "create",
+                        "design",
+                        "establish",
+                        "develop",
+                        "document",
+                        "define",
+                        "produce",
+                        "execute",
+                        "lead the",
+                        "own the",
+                        "conduct",
+                        "publish",
+                        "standardise",
+                        "pilot",
+                        "validate",
+                        "present",
+                        "submit",
+                        "coordinate",
+                        "introduce",
+                        "restructure",
+                        "redesign",
+                        "draft",
+                        "map",
+                        "audit",
+                        "review and recommend",
+                        "train",
+                        "onboard",
+                        "configure",
+                        "migrate",
+                        "negotiate",
+                        "brief",
+                        "facilitate",
+                    ],
+                },
+                {
+                    letter: "M",
+                    label: "Measurable",
+                    color: C.teal,
+                    q: "How will you know you've succeeded?",
+                    tip: "Include a number, %, count, or concrete deliverable. If you can't measure it, rewrite it.",
+                    flags: [
+                        "improve",
+                        "increase",
+                        "enhance",
+                        "better",
+                        "more",
+                        "strengthen",
+                        "maximise",
+                        "optimise",
+                        "boost",
+                        "raise",
+                        "elevate",
+                        "deepen",
+                        "broaden",
+                        "accelerate",
+                        "grow",
+                    ],
+                    signs: [
+                        "\u00a3",
+                        "\u20ac",
+                        "$",
+                        "%",
+                        "score",
+                        "rating",
+                        "target",
+                        "kpi",
+                        "metric",
+                        "variance",
+                        "accuracy",
+                        "error",
+                        "rate",
+                        "roi",
+                        "nps",
+                        "from x",
+                        "to y",
+                        "number of",
+                        "count of",
+                        "\u2264",
+                        "\u2265",
+                        "per month",
+                        "per quarter",
+                        "within 5",
+                        "within 10",
+                        "within 48",
+                        "sop",
+                        "playbook",
+                        "framework",
+                        "dashboard",
+                        "report",
+                        "tracker",
+                        "documented",
+                        "adopted",
+                        "approved",
+                        "published",
+                        "completed",
+                        "launched",
+                        "submitted",
+                        "delivered",
+                        "produced",
+                        "signed off",
+                        "operational",
+                        "embedded",
+                        "live",
+                        "tested",
+                        "validated",
+                        "trained",
+                        "certified",
+                        "enrolled",
+                    ],
+                },
+                {
+                    letter: "A",
+                    label: "Achievable",
+                    color: "rgb(30,107,214)",
+                    q: "Is this stretching but realistic?",
+                    tip: "Between comfortable and impossible. If you need something from others, name it.",
+                    flags: [],
+                    signs: [],
+                },
+                {
+                    letter: "R",
+                    label: "Relevant",
+                    color: C.amber,
+                    q: "Does this connect to priorities?",
+                    tip: "Trace a line to team strategy, business priorities, or the outcomes your work supports.",
+                    flags: [],
+                    signs: [],
+                },
+                {
+                    letter: "T",
+                    label: "Time-bound",
+                    color: C.pink,
+                    q: "When will it be done?",
+                    tip: "Specific date, quarter, or half. Include interim milestones for longer objectives.",
+                    flags: [
+                        "ongoing",
+                        "continuously",
+                        "as needed",
+                        "when possible",
+                        "at some point",
+                        "in due course",
+                        "when time allows",
+                        "no fixed date",
+                        "tbd",
+                        "tbc",
+                    ],
+                    signs: [
+                        "by q",
+                        "by h",
+                        "q1",
+                        "q2",
+                        "q3",
+                        "q4",
+                        "h1",
+                        "h2",
+                        "by end of",
+                        "deadline",
+                        "milestone",
+                        "quarterly",
+                        "monthly",
+                        "weekly",
+                        "fortnightly",
+                        "bi-weekly",
+                        "annually",
+                        "2026",
+                        "2027",
+                        "january",
+                        "february",
+                        "march",
+                        "april",
+                        "may",
+                        "june",
+                        "july",
+                        "august",
+                        "september",
+                        "october",
+                        "november",
+                        "december",
+                        "by jan",
+                        "by feb",
+                        "by mar",
+                        "by apr",
+                        "by may",
+                        "by jun",
+                        "by jul",
+                        "by aug",
+                        "by sep",
+                        "by oct",
+                        "by nov",
+                        "by dec",
+                        "within 2 weeks",
+                        "within 30 days",
+                        "within 5 working",
+                        "within 10 working",
+                        "each quarter",
+                        "each month",
+                        "per quarter",
+                        "year end",
+                        "mid-year",
+                        "half-year",
+                        "next survey",
+                        "next review",
+                    ],
+                },
+            ];
+
+            var CATS = [
+                {
+                    id: "financials",
+                    label: "Financial Objectives",
+                    weight: "35%",
+                    icon: "chart",
+                    color: C.blue,
+                    colorBg: C.bgMuted,
+                    desc: "Your contribution flows through brand performance, campaign effectiveness, and launch readiness \u2014 driving awareness, engagement, and market uptake through strategic, insight-led marketing.",
+                    guidance: [
+                        "Your contribution may be direct (budget stewardship, launch readiness) or indirect (brand health, campaign effectiveness, market insight). Be clear about which lever you own.",
+                        "Be specific about what YOU will deliver. Own the outcome.",
+                        "Examples: campaign ROI, brand awareness uplift, share of voice, digital engagement rates, or budget adherence.",
+                        "Examples: launch go-to-market execution, congress impact, KOL engagement metrics, market sizing, or content performance.",
+                    ],
+                    examples: [
+                        "Design and deliver the [H1/H2] go-to-market plan for [product/brand/indication], including positioning, messaging, channel mix, and activation brief. Achieve \u2265[X]% target audience reach and [X]% engagement by [date], tracked monthly against plan.",
+                        "Deliver the [campaign/programme] within agreed budget (\u2264[X]% variance), achieving \u2265[X] HCP engagements and \u2265[X]% positive sentiment score by [date]. Post-campaign review completed within 4 weeks of close.",
+                        "Build and execute the [congress/event/medical education programme] strategy for [event], including pre/during/post activation. Achieve [X] KOL interactions, [X] attendee engagements, with all materials approved by [date].",
+                    ],
+                    smartTips: {
+                        S: "Name the brand, product, campaign, or initiative. 'Design and deliver the H1 launch plan for [brand] with positioning, channel mix, and activation by [date].'",
+                        M: "Include a reach figure, engagement rate, brand metric, budget variance %, or a concrete deliverable (plan, brief, report, scorecard).",
+                        A: "Sense-check against budget, approval timelines, medical-legal review cycles, and cross-functional dependencies.",
+                        R: "Connect to brand strategy, the annual marketing plan, or the commercial outcomes your function enables.",
+                        T: "Quarterly milestones where possible. H1/H2 splits at minimum.",
+                    },
+                },
+                {
+                    id: "other",
+                    label: "Above BAU Projects",
+                    weight: "20%",
+                    icon: "spark",
+                    color: "#E6B85C",
+                    colorBg: C.bgMuted,
+                    desc: "Max 3 projects that go beyond your day job. Process excellence, capability building, knowledge resilience, strategic contribution.",
+                    guidance: [
+                        "Think about work that goes beyond BAU — over and above your regular day job.",
+                        "Process improvements, capability building, knowledge resilience, or strategic projects that make the team stronger.",
+                        "What would you put on a CV? What differentiates a great year from a good one?",
+                        "Maximum 3. One well-delivered project beats three half-finished ones.",
+                    ],
+                    examples: [
+                        "Design and document a standardised [process e.g. campaign briefing, content approval, agency management, launch readiness checklist] SOP by [date], validated with [colleagues], adopted as team standard by [date].",
+                        "Develop and pilot a [framework e.g. customer segmentation model, belief-change map, brand positioning audit, omnichannel planning guide] for [therapy area/brand] by [date], with findings presented to [audience] and adopted into [next planning cycle].",
+                        "Build and launch a [capability e.g. KOL tiering methodology, modular content system, marketing effectiveness scorecard] by [date], documented, adopted by [X] colleagues, first outputs delivered by [date].",
+                    ],
+                    smartTips: {
+                        S: "What exactly will exist at the end that doesn't exist now?",
+                        M: "An SOP, a piloted framework, a trained cohort, a working dashboard. Something tangible.",
+                        A: "Be honest about bandwidth. Quality over quantity.",
+                        R: "Connect to capability gaps, process fragility, or engagement survey feedback themes.",
+                        T: "'Documented by Q2, adopted by Q3' is better than 'by year end'.",
+                    },
+                },
+                {
+                    id: "people",
+                    label: "People & Engagement",
+                    weight: "15%",
+                    icon: "team",
+                    color: "#22C55E",
+                    colorBg: C.bgMuted,
+                    desc: "Line leaders: raise engagement, develop your team. Individuals: collaboration, knowledge sharing, resilience building, personal growth.",
+                    guidance: [
+                        "Line leaders: Own an engagement survey dimension. Focus on development, psychological safety, decision-making clarity.",
+                        "Individuals: How do you show up? Cross-team collaboration, knowledge sharing, documentation for resilience, your own development.",
+                        "Be specific about behaviours, not aspirations.",
+                        "Connect to your engagement survey themes: decision-making, follow-up actions, wellbeing, career development, or process productivity.",
+                    ],
+                    examples: [
+                        "Conduct structured monthly development conversations with each direct report, with development plans documented by Q1 and progress reviewed quarterly. Target \u2265[X]-point engagement survey improvement in Career & Development.",
+                        "Deliver [X] cross-team insight-sharing sessions by year end (campaign results, clinical insights, congress takeaways), attendance from \u22652 sub-teams, peer feedback collected.",
+                        "Document [X] key processes as SOPs by [date], enabling secondary cover within [X] working days, reducing single-person dependency.",
+                    ],
+                    smartTips: {
+                        S: "'Monthly development conversations with documented plans' not 'support team development'.",
+                        M: "engagement survey improvement, sessions delivered, plans completed, SOPs produced.",
+                        A: "Focus on what's within your control.",
+                        R: "Link to team resilience, people priorities, or your agreed action plan.",
+                        T: "Cadence for ongoing actions. Dates for deliverables.",
+                    },
+                },
+            ];
+
+            var HOWS = [
+                {
+                    id: "lead",
+                    label: "LEAD",
+                    color: C.blue,
+                    colorBg: C.bgMuted,
+                    icon: "lead",
+                    tag: "How you lead others to align and achieve",
+                    desc: "How you show up when leading a piece of work \u2014 whether or not you have direct reports. Do you create an environment where others do their best? Do you use influence positively? Do you build psychological safety, give people space to contribute, and earn trust through how you behave?",
+                    beh: [
+                        "Create psychological safety. People thrive and do their best work when they feel safe to contribute, challenge, and take ownership. Servant leadership over positional power.",
+                        "Align others to the objective through clarity, inclusion, and shared purpose \u2014 not through authority or control. Make people want to follow, not feel they have to.",
+                        "Give honest, constructive feedback and create space for others to do the same. High-performing teams are built on candour, not comfort.",
+                    ],
+                    ex: [
+                        "Lead [project/initiative] to completion by [date], creating an inclusive approach where all contributors have clear roles and feel ownership. Evidenced by on-time delivery and positive feedback from \u2265[X] collaborators.",
+                        "Support the development of [X] colleagues through [mentoring, co-leading, structured knowledge-sharing], with \u2265[X] tangible interactions by year end and peer feedback collected.",
+                    ],
+                },
+                {
+                    id: "shape",
+                    label: "SHAPE",
+                    color: "#EF4444",
+                    colorBg: C.bgMuted,
+                    icon: "shape",
+                    tag: "How you influence thinking and drive change",
+                    desc: "Influence without authority. Most of the team don't have positional power over the people they need to align. SHAPE is about building the case, bringing people along through evidence and persuasion, shifting thinking rather than just reporting it.",
+                    beh: [
+                        "Translate insights into recommendations that change what we do \u2014 not just observations, but ideas with a clear 'so what' and a proposed action.",
+                        "Influence without authority. Build the case through evidence and persuasion. The difference between 'I was told to' and 'here's why this matters.'",
+                        "Challenge the status quo constructively. Take considered risks \u2014 not everything needs to be perfect first time, but it does need to be thoughtful.",
+                    ],
+                    ex: [
+                        "Act on \u22651 insight per quarter from external sources, each translated into a recommendation with a clear 'so what'. \u22651 adopted into team plans by year end.",
+                        "Influence a decision outside my direct remit by building an evidence-based case and gaining alignment from [X] stakeholders without escalation. Outcome documented.",
+                    ],
+                },
+                {
+                    id: "connect",
+                    label: "CONNECT",
+                    color: "#22C55E",
+                    colorBg: C.bgMuted,
+                    icon: "connect",
+                    tag: "How you interact, collaborate, and reach out",
+                    desc: "How you interact day to day. Do you seek feedback and act on it? Are you proactive in reaching out to other teams, regions, global? Or do you sit in your silo waiting to be asked? A generous, outward-facing colleague who makes the whole team stronger.",
+                    beh: [
+                        "Be proactive. Reach out to other teams, regions, global, customers, partners when you need input or have something to share. Don't wait to be asked.",
+                        "Seek feedback genuinely and act on it visibly. How you receive feedback says as much about you as how you give it.",
+                        "Build relationships on curiosity and mutual value, not transactional need. Break down silos rather than waiting for someone else to build the bridge.",
+                    ],
+                    ex: [
+                        "Establish regular touchpoints with [X] colleagues outside my team, meeting \u2265[frequency], with \u22652 joint deliverables by year end. Evidenced by outputs and stakeholder feedback.",
+                        "Seek and act on feedback from [peers/manager/partners] \u2265[X] times per year, with specific changes documented and discussed in 1:1s.",
+                    ],
+                },
+                {
+                    id: "deliver",
+                    label: "DELIVER",
+                    color: "#E6B85C",
+                    colorBg: C.bgMuted,
+                    icon: "deliver",
+                    tag: "How you execute, persevere, and own outcomes",
+                    desc: "Execution character. Starter-finisher. Perseverance when things get difficult. Accountability for outcomes, not excuses. Working at pace, proactively removing obstacles, self-starting. Ownership lives here.",
+                    beh: [
+                        "Be a starter-finisher. See commitments through to completion, not just to the difficult bit. Persevere when it gets hard.",
+                        "Own your outcomes. When things go wrong, fix them and learn. When they go right, share the credit. No blame, no excuses.",
+                        "Work at pace. Proactively remove obstacles. Self-start. Don't wait for permission or perfect conditions \u2014 create momentum.",
+                    ],
+                    ex: [
+                        "Achieve \u2265[X]% on-time delivery of committed milestones, risks flagged \u22652 weeks ahead, replans shared proactively. Tracked quarterly.",
+                        "Identify and resolve [X] blockers within my workstream by [date] without waiting for escalation, documenting approach and outcome.",
+                    ],
+                },
+            ];
+
+            var TABS = [
+                { id: "welcome", label: "Welcome", icon: "home" },
+                { id: "overview", label: "Framework", icon: "framework" },
+                { id: "build", label: "The What", icon: "build" },
+                { id: "how", label: "The How", icon: "how" },
+                { id: "review", label: "Review & Export", icon: "review" },
+            ];
+
+            // Components
+            function Tag({ children, color, bg }) {
+                return h(
+                    "span",
+                    {
+                        style: {
+                            display: "inline-block",
+                            padding: "7px 12px",
+                            fontSize: 11,
+                            fontWeight: 700,
+                            letterSpacing: 0.7,
+                            textTransform: "uppercase",
+                            color: color || C.textMid,
+                            background: bg || C.bgMuted,
+                        },
+                    },
+                    children,
+                );
+            }
+            function Box({ children, style }) {
+                return h(
+                    "div",
+                    {
+                        style: {
+                            background: C.card,
+                            padding: 32,
+                            marginBottom: 24,
+                            ...style,
+                        },
+                    },
+                    children,
+                );
+            }
+            function SoftBox({ children, style }) {
+                return h(
+                    "div",
+                    {
+                        style: {
+                            background: C.bgMuted,
+                            padding: 24,
+                            marginBottom: 16,
+                            ...style,
+                        },
+                    },
+                    children,
+                );
+            }
+            function Inp({ value, onChange, placeholder, multi }) {
+                return h(multi ? "textarea" : "input", {
+                    value: value,
+                    onChange: onChange,
+                    placeholder: placeholder,
+                    rows: multi ? 5 : undefined,
+                    style: {
+                        width: "100%",
+                        padding: "18px 18px",
+                        border: "none",
+                        fontSize: 16,
+                        fontFamily: "inherit",
+                        lineHeight: 1.75,
+                        resize: multi ? "vertical" : "none",
+                        background: C.bgSoft,
+                        color: C.text,
+                        boxSizing: "border-box",
+                    },
+                    onFocus: function (e) {
+                        e.target.style.background = "#0D1A2D";
+                    },
+                    onBlur: function (e) {
+                        e.target.style.background = C.bgSoft;
+                    },
+                });
+            }
+            function Fold({ title, children, open: dO, bg }) {
+                var s = useState(dO || false);
+                return h(
+                    "div",
+                    { style: { marginBottom: 10, overflow: "hidden" } },
+                    h(
+                        "div",
+                        {
+                            onClick: function () {
+                                s[1](!s[0]);
+                            },
+                            style: {
+                                padding: "16px 18px",
+                                cursor: "pointer",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                background: s[0] ? bg || C.bgMuted : C.bgSoft,
+                            },
+                        },
+                        h(
+                            "span",
+                            {
+                                style: {
+                                    fontSize: 11,
+                                    fontWeight: 700,
+                                    letterSpacing: 1,
+                                    textTransform: "uppercase",
+                                    color: C.textMid,
+                                },
+                            },
+                            title,
+                        ),
+                        h(
+                            "span",
+                            {
+                                style: {
+                                    fontSize: 14,
+                                    transform: s[0]
+                                        ? "rotate(180deg)"
+                                        : "rotate(0)",
+                                    transition: "transform 0.2s",
+                                    color: C.textLight,
+                                },
+                            },
+                            "▾",
+                        ),
+                    ),
+                    s[0] &&
+                        h(
+                            "div",
+                            { style: { padding: 18, background: C.card } },
+                            children,
+                        ),
+                );
+            }
+
+            function SmartCheck({ obj, tips }) {
+                var text = (
+                    (obj.title || "") +
+                    " " +
+                    (obj.detail || "") +
+                    " " +
+                    (obj.measure || "")
+                ).toLowerCase();
+                var has = text.trim().length > 5;
+                var s = useState(false);
+                function assess(c) {
+                    if (!has) return "empty";
+                    if (c.flags.length === 0 && c.signs.length === 0)
+                        return "review";
+                    var r = c.flags.some(function (f) {
+                        return text.includes(f);
+                    });
+                    var g = c.signs.some(function (s) {
+                        return text.includes(s);
+                    });
+                    if (g && !r) return "good";
+                    if (r && !g) return "warn";
+                    if (g && r) return "mix";
+                    return "neutral";
+                }
+                var ic = {
+                    good: "✓",
+                    warn: "!",
+                    mix: "~",
+                    empty: "·",
+                    neutral: "?",
+                    review: "i",
+                };
+                var tx = {
+                    good: "Looking good",
+                    warn: "Needs attention",
+                    mix: "Getting there",
+                    empty: "Not started",
+                    neutral: "Review",
+                    review: "Your judgement",
+                };
+                var bg = {
+                    good: C.success,
+                    warn: C.warn,
+                    mix: "#B8860B",
+                    empty: C.bgMuted,
+                    neutral: C.textLight,
+                    review: "rgb(30,107,214)",
+                };
+                function getSmartBg(c, st) {
+                    if (st !== "review") return bg[st];
+                    if (c.letter === "A" || c.letter === "R")
+                        return "rgb(30,107,214)";
+                    return bg[st];
+                }
+                return h(
+                    "div",
+                    {
+                        style: {
+                            marginTop: 16,
+                            padding: 18,
+                            background: C.bgSoft,
+                        },
+                    },
+                    h(
+                        "div",
+                        {
+                            onClick: function () {
+                                s[1](!s[0]);
+                            },
+                            style: {
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                cursor: "pointer",
+                            },
+                        },
+                        h(
+                            "div",
+                            {
+                                style: {
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 6,
+                                },
+                            },
+                            h(
+                                "span",
+                                {
+                                    style: {
+                                        fontSize: 12,
+                                        fontWeight: 700,
+                                        color: C.text,
+                                    },
+                                },
+                                "SMART Check",
+                            ),
+                            h(
+                                "div",
+                                {
+                                    style: {
+                                        display: "flex",
+                                        gap: 2,
+                                        marginLeft: 6,
+                                    },
+                                },
+                                SMART.map(function (c) {
+                                    var st = assess(c);
+                                    return h(
+                                        "span",
+                                        {
+                                            key: c.letter,
+                                            style: {
+                                                width: 20,
+                                                height: 20,
+                                                display: "inline-flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                fontSize: 9,
+                                                fontWeight: 800,
+                                                color:
+                                                    st === "empty"
+                                                        ? C.textLight
+                                                        : "#fff",
+                                                background: getSmartBg(c, st),
+                                            },
+                                        },
+                                        c.letter,
+                                    );
+                                }),
+                            ),
+                        ),
+                        h(
+                            "span",
+                            {
+                                style: {
+                                    fontSize: 14,
+                                    transform: s[0]
+                                        ? "rotate(180deg)"
+                                        : "rotate(0)",
+                                    transition: "transform 0.2s",
+                                    color: C.textLight,
+                                },
+                            },
+                            "\u25be",
+                        ),
+                    ),
+                    s[0] &&
+                        h(
+                            "div",
+                            { style: { marginTop: 12 } },
+                            SMART.map(function (c) {
+                                var st = assess(c);
+                                var tip = (tips && tips[c.letter]) || c.tip;
+                                return h(
+                                    "div",
+                                    {
+                                        key: c.letter,
+                                        style: {
+                                            display: "flex",
+                                            gap: 10,
+                                            padding: "8px 0",
+                                            borderBottom:
+                                                "1px solid " + C.borderLight,
+                                            alignItems: "flex-start",
+                                        },
+                                    },
+                                    h(
+                                        "div",
+                                        {
+                                            style: {
+                                                width: 26,
+                                                height: 26,
+                                                flexShrink: 0,
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                background: C.bgMuted,
+                                                fontSize: 12,
+                                                fontWeight: 800,
+                                                color: C.text,
+                                            },
+                                        },
+                                        c.letter,
+                                    ),
+                                    h(
+                                        "div",
+                                        { style: { flex: 1 } },
+                                        h(
+                                            "div",
+                                            {
+                                                style: {
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    gap: 6,
+                                                    marginBottom: 2,
+                                                },
+                                            },
+                                            h(
+                                                "span",
+                                                {
+                                                    style: {
+                                                        fontSize: 12,
+                                                        fontWeight: 700,
+                                                        color: C.text,
+                                                    },
+                                                },
+                                                c.label,
+                                            ),
+                                            h(
+                                                "span",
+                                                { style: { fontSize: 11 } },
+                                                ic[st],
+                                            ),
+                                            h(
+                                                "span",
+                                                {
+                                                    style: {
+                                                        fontSize: 11,
+                                                        fontWeight: 600,
+                                                        color:
+                                                            st === "good"
+                                                                ? C.success
+                                                                : st === "warn"
+                                                                  ? C.warn
+                                                                  : st ===
+                                                                      "review"
+                                                                    ? "rgb(30,107,214)"
+                                                                    : C.textLight,
+                                                    },
+                                                },
+                                                tx[st],
+                                            ),
+                                        ),
+                                        h(
+                                            "div",
+                                            {
+                                                style: {
+                                                    fontSize: 12,
+                                                    color: C.textMid,
+                                                    lineHeight: 1.6,
+                                                },
+                                            },
+                                            tip,
+                                        ),
+                                    ),
+                                );
+                            }),
+                        ),
+                );
+            }
+
+            // Welcome
+            function Welcome({ go }) {
+                return h(
+                    "div",
+                    null,
+                    h(
+                        "div",
+                        {
+                            style: {
+                                textAlign: "center",
+                                padding: "24px 0 28px",
+                            },
+                        },
+                        h(
+                            "h2",
+                            {
+                                style: {
+                                    fontSize: 40,
+                                    fontWeight: 800,
+                                    color: C.text,
+                                    margin: "0 0 12px",
+                                    letterSpacing: -0.5,
+                                },
+                            },
+                            "Why objectives matter",
+                        ),
+                        h(
+                            "p",
+                            {
+                                style: {
+                                    fontSize: 18,
+                                    color: C.textMid,
+                                    maxWidth: 760,
+                                    margin: "0 auto",
+                                    lineHeight: 1.8,
+                                },
+                            },
+                            "Good objectives create clarity. They turn broad expectations into focused priorities, help you make better trade-offs, and make progress easier to see and discuss throughout the year.",
+                        ),
+                    ),
+                    h(
+                        Box,
+                        { style: {} },
+                        h(
+                            "div",
+                            {
+                                style: {
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 12,
+                                    marginBottom: 18,
+                                },
+                            },
+                            h(Glyph, {
+                                name: "framework",
+                                size: 22,
+                                color: C.text,
+                                accent: "#22C55E",
+                            }),
+                            h(
+                                "h3",
+                                {
+                                    style: {
+                                        margin: 0,
+                                        fontSize: 24,
+                                        fontWeight: 800,
+                                        color: C.text,
+                                    },
+                                },
+                                "From activity to outcomes",
+                            ),
+                        ),
+                        h(
+                            "div",
+                            {
+                                style: {
+                                    fontSize: 14,
+                                    color: C.textMid,
+                                    lineHeight: 1.9,
+                                },
+                            },
+                            h(
+                                "p",
+                                { style: { margin: "0 0 12px" } },
+                                "When objectives are vague, it becomes easy to stay busy without being clear on what really matters. Stronger objectives reduce that ambiguity.",
+                            ),
+                            h(
+                                "p",
+                                { style: { margin: "0 0 12px" } },
+                                "This builder is here to help you write objectives that are sharper, more measurable, and easier to assess — so your work is anchored in outcomes rather than activity.",
+                            ),
+                            h(
+                                "p",
+                                { style: { margin: 0 } },
+                                "That creates better focus for you, clearer expectations with your manager, and a more useful structure for year-round conversations about progress, priorities, and support.",
+                            ),
+                        ),
+                    ),
+                    h(
+                        Box,
+                        { style: {} },
+                        h(
+                            "div",
+                            {
+                                style: {
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 12,
+                                    marginBottom: 18,
+                                },
+                            },
+                            h(Glyph, {
+                                name: "money",
+                                size: 22,
+                                color: C.text,
+                                accent: "#22C55E",
+                            }),
+                            h(
+                                "h3",
+                                {
+                                    style: {
+                                        margin: 0,
+                                        fontSize: 24,
+                                        fontWeight: 800,
+                                        color: C.text,
+                                    },
+                                },
+                                "Recognition for contribution",
+                            ),
+                        ),
+                        h(
+                            "div",
+                            {
+                                style: {
+                                    fontSize: 14,
+                                    color: C.textMid,
+                                    lineHeight: 1.9,
+                                },
+                            },
+                            h(
+                                "p",
+                                { style: { margin: "0 0 12px" } },
+                                "There is also a personal benefit to getting this right. In a pay-for-performance environment, clearer objectives make it easier to show the direct contribution you have made over the year.",
+                            ),
+                            h(
+                                "p",
+                                { style: { margin: "0 0 12px" } },
+                                h(
+                                    "strong",
+                                    { style: { color: C.text } },
+                                    "Two dimensions still matter: ",
+                                ),
+                                "the ",
+                                h("em", null, "'What'"),
+                                " you deliver (70%) and the ",
+                                h("em", null, "'How'"),
+                                " (30%). Strong performance comes from both impact and behaviour.",
+                            ),
+                            h(
+                                "p",
+                                { style: { margin: 0 } },
+                                "Well-written objectives give you a fairer opportunity to have your contribution recognised — not just the effort you put in, but the outcomes you helped create.",
+                            ),
+                        ),
+                    ),
+                    h(
+                        Box,
+                        { style: {} },
+                        h(
+                            "div",
+                            {
+                                style: {
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 12,
+                                    marginBottom: 18,
+                                },
+                            },
+                            h(Glyph, {
+                                name: "check",
+                                size: 22,
+                                color: C.text,
+                                accent: "#EF4444",
+                            }),
+                            h(
+                                "h3",
+                                {
+                                    style: {
+                                        margin: 0,
+                                        fontSize: 24,
+                                        fontWeight: 800,
+                                        color: C.text,
+                                    },
+                                },
+                                "What this tool helps you do",
+                            ),
+                        ),
+                        h(
+                            "div",
+                            {
+                                style: {
+                                    display: "grid",
+                                    gridTemplateColumns:
+                                        "repeat(auto-fit, minmax(220px, 1fr))",
+                                    gap: 14,
+                                },
+                            },
+                            [
+                                {
+                                    t: "Sharpen your wording",
+                                    d: "Turn broad intent into specific, outcome-focused objectives.",
+                                },
+                                {
+                                    t: "Make success measurable",
+                                    d: "Define the evidence, milestones, or metrics that show progress.",
+                                },
+                                {
+                                    t: "Balance what and how",
+                                    d: "Build objectives that reflect both delivery and leadership behaviours.",
+                                },
+                                {
+                                    t: "Create better review conversations",
+                                    d: "Give yourself and your manager a clearer basis for check-ins and assessment.",
+                                },
+                            ].map(function (x, i) {
+                                return h(
+                                    "div",
+                                    { key: i, style: { padding: "14px 0" } },
+                                    h(
+                                        "div",
+                                        {
+                                            style: {
+                                                fontSize: 14,
+                                                fontWeight: 700,
+                                                color: C.text,
+                                                marginBottom: 6,
+                                            },
+                                        },
+                                        x.t,
+                                    ),
+                                    h(
+                                        "div",
+                                        {
+                                            style: {
+                                                fontSize: 13,
+                                                color: C.textMid,
+                                                lineHeight: 1.7,
+                                            },
+                                        },
+                                        x.d,
+                                    ),
+                                );
+                            }),
+                        ),
+                    ),
+                    h(
+                        "div",
+                        { style: { textAlign: "center", padding: "10px 0 0" } },
+                        h(
+                            "button",
+                            {
+                                onClick: go,
+                                style: {
+                                    padding: "14px 32px",
+                                    border: "none",
+                                    background: "#22C55E",
+                                    color: "#071326",
+                                    fontSize: 15,
+                                    fontWeight: 800,
+                                },
+                            },
+                            "Continue →",
+                        ),
+                    ),
+                );
+            }
+
+            // Overview
+            function Overview() {
+                return h(
+                    "div",
+                    null,
+                    h(
+                        "div",
+                        { style: { textAlign: "center", marginBottom: 32 } },
+                        h(
+                            "h2",
+                            {
+                                style: {
+                                    fontSize: 32,
+                                    fontWeight: 800,
+                                    color: C.text,
+                                },
+                            },
+                            "The Framework",
+                        ),
+                        h(
+                            "p",
+                            {
+                                style: {
+                                    color: C.textMid,
+                                    fontSize: 14,
+                                    marginTop: 6,
+                                },
+                            },
+                            "Two dimensions: ",
+                            h("strong", null, "'What'"),
+                            " you deliver (70%) and ",
+                            h("strong", null, "'How'"),
+                            " (30%).",
+                        ),
+                    ),
+                    h(
+                        "div",
+                        {
+                            style: {
+                                display: "flex",
+                                gap: 12,
+                                marginBottom: 24,
+                                flexWrap: "wrap",
+                            },
+                        },
+                        // 70% What
+                        h(
+                            Box,
+                            { style: { flex: "1 1 280px" } },
+                            h(
+                                "div",
+                                {
+                                    style: {
+                                        fontSize: 28,
+                                        fontWeight: 800,
+                                        color: C.teal,
+                                    },
+                                },
+                                "70%",
+                            ),
+                            h(
+                                "div",
+                                {
+                                    style: {
+                                        fontSize: 11,
+                                        fontWeight: 700,
+                                        color: C.textLight,
+                                        textTransform: "uppercase",
+                                        letterSpacing: 1,
+                                        margin: "4px 0 16px",
+                                    },
+                                },
+                                "The What \u2014 Individual Goals",
+                            ),
+                            [
+                                {
+                                    l: "Financial Objectives",
+                                    w: "35%",
+                                    c: C.blue,
+                                },
+                                {
+                                    l: "Above BAU Projects",
+                                    w: "20%",
+                                    c: "#E6B85C",
+                                },
+                                {
+                                    l: "People & Engagement",
+                                    w: "15%",
+                                    c: C.lime,
+                                },
+                            ].map(function (x) {
+                                return h(
+                                    "div",
+                                    {
+                                        key: x.l,
+                                        style: {
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: 8,
+                                            marginBottom: 8,
+                                        },
+                                    },
+                                    h("div", {
+                                        style: {
+                                            width: 6,
+                                            height: 6,
+                                            background: x.c,
+                                            flexShrink: 0,
+                                        },
+                                    }),
+                                    h(
+                                        "div",
+                                        {
+                                            style: {
+                                                flex: 1,
+                                                fontSize: 13,
+                                                color: C.text,
+                                            },
+                                        },
+                                        x.l,
+                                    ),
+                                    h(
+                                        Tag,
+                                        { color: C.textMid, bg: C.bgSoft },
+                                        x.w,
+                                    ),
+                                );
+                            }),
+                        ),
+                        // 30% How
+                        h(
+                            Box,
+                            { style: { flex: "1 1 280px" } },
+                            h(
+                                "div",
+                                {
+                                    style: {
+                                        fontSize: 28,
+                                        fontWeight: 800,
+                                        color: C.navy,
+                                    },
+                                },
+                                "30%",
+                            ),
+                            h(
+                                "div",
+                                {
+                                    style: {
+                                        fontSize: 11,
+                                        fontWeight: 700,
+                                        color: C.textLight,
+                                        textTransform: "uppercase",
+                                        letterSpacing: 1,
+                                        margin: "4px 0 16px",
+                                    },
+                                },
+                                "The How \u2014 Behavioural Dimensions in Action",
+                            ),
+                            h(
+                                "p",
+                                {
+                                    style: {
+                                        fontSize: 13,
+                                        color: C.textMid,
+                                        margin: "0 0 12px",
+                                        lineHeight: 1.8,
+                                    },
+                                },
+                                "The four leadership behaviours below are the core of the 'How'. Pick 1\u20132 based on your role, strengths, and development areas.",
+                            ),
+                            h(
+                                "div",
+                                {
+                                    style: {
+                                        display: "flex",
+                                        flexWrap: "wrap",
+                                        gap: 6,
+                                    },
+                                },
+                                HOWS.map(function (b) {
+                                    return h(
+                                        "div",
+                                        {
+                                            key: b.id,
+                                            style: {
+                                                padding: "5px 12px",
+                                                background: C.bgMuted,
+                                                fontSize: 12,
+                                                fontWeight: 700,
+                                                color: C.text,
+                                                display: "flex",
+                                                alignItems: "center",
+                                                gap: 6,
+                                            },
+                                        },
+                                        h(Glyph, {
+                                            name: b.icon,
+                                            size: 14,
+                                            color: C.textMid,
+                                            accent: b.color || C.teal,
+                                        }),
+                                        b.label,
+                                    );
+                                }),
+                            ),
+                        ),
+                    ),
+                );
+            }
+
+            // Build
+            function Build({ objs, setObjs }) {
+                var s = useState("financials");
+                var act = s[0],
+                    setAct = s[1];
+                var cat = CATS.find(function (c) {
+                    return c.id === act;
+                });
+                function upd(ci, idx, f, v) {
+                    setObjs(function (p) {
+                        var n = Object.assign({}, p);
+                        var a = n[ci] ? n[ci].slice() : [];
+                        if (!a[idx])
+                            a[idx] = { title: "", detail: "", measure: "" };
+                        a[idx] = Object.assign({}, a[idx]);
+                        a[idx][f] = v;
+                        n[ci] = a;
+                        return n;
+                    });
+                }
+                function add(ci) {
+                    setObjs(function (p) {
+                        var n = Object.assign({}, p);
+                        n[ci] = (n[ci] || []).slice();
+                        n[ci].push({ title: "", detail: "", measure: "" });
+                        return n;
+                    });
+                }
+                function rem(ci, idx) {
+                    setObjs(function (p) {
+                        var n = Object.assign({}, p);
+                        n[ci] = n[ci].filter(function (_, i) {
+                            return i !== idx;
+                        });
+                        return n;
+                    });
+                }
+                var os = objs[act] || [];
+                return h(
+                    "div",
+                    null,
+                    h(
+                        "div",
+                        {
+                            style: {
+                                display: "flex",
+                                gap: 6,
+                                marginBottom: 20,
+                                flexWrap: "wrap",
+                            },
+                        },
+                        CATS.map(function (c) {
+                            return h(
+                                "button",
+                                {
+                                    key: c.id,
+                                    onClick: function () {
+                                        setAct(c.id);
+                                    },
+                                    style: {
+                                        padding: "10px 16px",
+                                        border:
+                                            act === c.id
+                                                ? "2px solid " + c.color
+                                                : "1px solid " + C.border,
+                                        background:
+                                            act === c.id ? C.bgMuted : C.card,
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: 8,
+                                        color: C.text,
+                                    },
+                                },
+                                h(Glyph, {
+                                    name: c.icon,
+                                    size: 16,
+                                    color: act === c.id ? c.color : C.textMid,
+                                    accent: c.color || C.teal,
+                                }),
+                                h(
+                                    "div",
+                                    { style: { textAlign: "left" } },
+                                    h(
+                                        "div",
+                                        {
+                                            style: {
+                                                fontSize: 13,
+                                                fontWeight:
+                                                    act === c.id ? 700 : 500,
+                                                color:
+                                                    act === c.id
+                                                        ? c.color
+                                                        : C.text,
+                                            },
+                                        },
+                                        c.label,
+                                    ),
+                                    h(
+                                        "div",
+                                        {
+                                            style: {
+                                                fontSize: 11,
+                                                color: C.textLight,
+                                            },
+                                        },
+                                        c.weight,
+                                    ),
+                                ),
+                            );
+                        }),
+                    ),
+                    h(
+                        Box,
+                        { style: { marginBottom: 16 } },
+                        h(
+                            "div",
+                            {
+                                style: {
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 10,
+                                    marginBottom: 10,
+                                },
+                            },
+                            h(Glyph, {
+                                name: cat.icon,
+                                size: 20,
+                                color: C.text,
+                                accent: cat.color || C.teal,
+                            }),
+                            h(
+                                "div",
+                                null,
+                                h(
+                                    "h3",
+                                    {
+                                        style: {
+                                            margin: 0,
+                                            fontSize: 16,
+                                            fontWeight: 700,
+                                            color: C.navy,
+                                        },
+                                    },
+                                    cat.label,
+                                ),
+                                h(
+                                    "p",
+                                    {
+                                        style: {
+                                            margin: 0,
+                                            fontSize: 13,
+                                            color: C.textMid,
+                                        },
+                                    },
+                                    cat.desc,
+                                ),
+                            ),
+                        ),
+                        h(
+                            Fold,
+                            { title: "\ud83d\udcd6 Guidance" },
+                            h(
+                                "ul",
+                                { style: { margin: 0, paddingLeft: 18 } },
+                                cat.guidance.map(function (g, i) {
+                                    return h(
+                                        "li",
+                                        {
+                                            key: i,
+                                            style: {
+                                                fontSize: 13,
+                                                color: C.textMid,
+                                                lineHeight: 1.7,
+                                                marginBottom: 4,
+                                            },
+                                        },
+                                        g,
+                                    );
+                                }),
+                            ),
+                        ),
+                        h(
+                            Fold,
+                            { title: "\ud83d\udca1 Example SMART Objectives" },
+                            cat.examples.map(function (e, i) {
+                                return h(
+                                    "div",
+                                    {
+                                        key: i,
+                                        style: {
+                                            padding: 10,
+                                            background: C.bgSoft,
+                                            marginBottom: 6,
+                                            fontSize: 13,
+                                            color: C.textMid,
+                                            lineHeight: 1.6,
+                                        },
+                                    },
+                                    e,
+                                );
+                            }),
+                        ),
+                        h(
+                            Fold,
+                            { title: "\ud83e\uddea SMART Tips" },
+                            Object.keys(cat.smartTips).map(function (l) {
+                                var cr = SMART.find(function (c) {
+                                    return c.letter === l;
+                                });
+                                return h(
+                                    "div",
+                                    {
+                                        key: l,
+                                        style: {
+                                            display: "flex",
+                                            gap: 8,
+                                            marginBottom: 8,
+                                        },
+                                    },
+                                    h(
+                                        "span",
+                                        {
+                                            style: {
+                                                width: 22,
+                                                height: 22,
+                                                display: "inline-flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                fontSize: 10,
+                                                fontWeight: 800,
+                                                background: C.bgMuted,
+                                                flexShrink: 0,
+                                            },
+                                        },
+                                        l,
+                                    ),
+                                    h(
+                                        "div",
+                                        {
+                                            style: {
+                                                fontSize: 12,
+                                                color: C.textMid,
+                                                lineHeight: 1.6,
+                                            },
+                                        },
+                                        h(
+                                            "strong",
+                                            { style: { color: C.text } },
+                                            cr ? cr.label + ": " : "",
+                                        ),
+                                        cat.smartTips[l],
+                                    ),
+                                );
+                            }),
+                        ),
+                    ),
+                    os.map(function (obj, idx) {
+                        return h(
+                            Box,
+                            { key: idx, style: {} },
+                            h(
+                                "div",
+                                {
+                                    style: {
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        alignItems: "center",
+                                        marginBottom: 12,
+                                    },
+                                },
+                                h(
+                                    Tag,
+                                    { color: cat.color, bg: cat.colorBg },
+                                    "Objective " + (idx + 1),
+                                ),
+                                os.length > 1 &&
+                                    h(
+                                        "button",
+                                        {
+                                            onClick: function () {
+                                                rem(act, idx);
+                                            },
+                                            style: {
+                                                background: "none",
+                                                border: "none",
+                                                fontSize: 18,
+                                                color: C.textLight,
+                                                padding: 4,
+                                            },
+                                        },
+                                        "\u00d7",
+                                    ),
+                            ),
+                            h(
+                                "div",
+                                { style: { marginBottom: 10 } },
+                                h(
+                                    "label",
+                                    {
+                                        style: {
+                                            fontSize: 12,
+                                            fontWeight: 600,
+                                            color: C.textMid,
+                                            display: "block",
+                                            marginBottom: 5,
+                                        },
+                                    },
+                                    "Objective Title",
+                                ),
+                                h(Inp, {
+                                    value: obj.title,
+                                    onChange: function (e) {
+                                        upd(act, idx, "title", e.target.value);
+                                    },
+                                    placeholder:
+                                        "Concise, outcome-focused title...",
+                                }),
+                            ),
+                            h(
+                                "div",
+                                { style: { marginBottom: 10 } },
+                                h(
+                                    "label",
+                                    {
+                                        style: {
+                                            fontSize: 12,
+                                            fontWeight: 600,
+                                            color: C.textMid,
+                                            display: "block",
+                                            marginBottom: 5,
+                                        },
+                                    },
+                                    "Detail",
+                                ),
+                                h(Inp, {
+                                    multi: true,
+                                    value: obj.detail,
+                                    onChange: function (e) {
+                                        upd(act, idx, "detail", e.target.value);
+                                    },
+                                    placeholder:
+                                        "What will you do? Why? Include milestones.",
+                                }),
+                            ),
+                            h(
+                                "div",
+                                null,
+                                h(
+                                    "label",
+                                    {
+                                        style: {
+                                            fontSize: 12,
+                                            fontWeight: 600,
+                                            color: C.textMid,
+                                            display: "block",
+                                            marginBottom: 5,
+                                        },
+                                    },
+                                    "Success Measures",
+                                ),
+                                h(Inp, {
+                                    multi: true,
+                                    value: obj.measure,
+                                    onChange: function (e) {
+                                        upd(
+                                            act,
+                                            idx,
+                                            "measure",
+                                            e.target.value,
+                                        );
+                                    },
+                                    placeholder:
+                                        "Metrics, deadlines, deliverables. Numbers.",
+                                }),
+                            ),
+                            h(SmartCheck, { obj: obj, tips: cat.smartTips }),
+                        );
+                    }),
+                    h(
+                        "button",
+                        {
+                            onClick: function () {
+                                add(act);
+                            },
+                            style: {
+                                width: "100%",
+                                padding: 12,
+                                border: "1px solid " + C.border,
+                                background: "transparent",
+                                fontSize: 13,
+                                fontWeight: 600,
+                                color: C.text,
+                            },
+                        },
+                        "+Add Objective",
+                    ),
+                );
+            }
+
+            // How
+            function HowTab({ howObjs, setHowObjs }) {
+                var s = useState("lead");
+                var act = s[0],
+                    setAct = s[1];
+                var b = HOWS.find(function (x) {
+                    return x.id === act;
+                });
+                function upd(f, v) {
+                    setHowObjs(function (p) {
+                        var n = Object.assign({}, p);
+                        n[act] = Object.assign({}, n[act]);
+                        n[act][f] = v;
+                        return n;
+                    });
+                }
+                var d = howObjs[act] || { objective: "", evidence: "" };
+                return h(
+                    "div",
+                    null,
+                    h(
+                        "div",
+                        { style: { textAlign: "center", marginBottom: 24 } },
+                        h(
+                            "h2",
+                            {
+                                style: {
+                                    fontSize: 30,
+                                    fontWeight: 800,
+                                    color: C.text,
+                                },
+                            },
+                            "The How",
+                        ),
+                        h(
+                            "p",
+                            {
+                                style: {
+                                    color: C.textMid,
+                                    fontSize: 13,
+                                    marginTop: 6,
+                                },
+                            },
+                            "1\u20132 dimensions. Observable, specific, time-bound.",
+                        ),
+                    ),
+                    h(
+                        "div",
+                        {
+                            style: {
+                                display: "grid",
+                                gridTemplateColumns:
+                                    "repeat(auto-fit, minmax(140px, 1fr))",
+                                gap: 8,
+                                marginBottom: 20,
+                            },
+                        },
+                        HOWS.map(function (x) {
+                            return h(
+                                "button",
+                                {
+                                    key: x.id,
+                                    onClick: function () {
+                                        setAct(x.id);
+                                    },
+                                    style: {
+                                        padding: 14,
+                                        border:
+                                            act === x.id
+                                                ? "2px solid " + x.color
+                                                : "1px solid " + C.border,
+                                        background:
+                                            act === x.id ? C.bgMuted : C.card,
+                                        textAlign: "center",
+                                        color: C.text,
+                                    },
+                                },
+                                h(
+                                    "div",
+                                    {
+                                        style: {
+                                            display: "flex",
+                                            justifyContent: "center",
+                                            marginBottom: 8,
+                                        },
+                                    },
+                                    h(Glyph, {
+                                        name: x.icon,
+                                        size: 24,
+                                        color: C.text,
+                                        accent: x.color || C.teal,
+                                    }),
+                                ),
+                                h(
+                                    "div",
+                                    {
+                                        style: {
+                                            fontSize: 14,
+                                            fontWeight: 800,
+                                            color: x.color,
+                                        },
+                                    },
+                                    x.label,
+                                ),
+                                h(
+                                    "div",
+                                    {
+                                        style: {
+                                            fontSize: 11,
+                                            color: C.textLight,
+                                            marginTop: 2,
+                                        },
+                                    },
+                                    x.tag,
+                                ),
+                            );
+                        }),
+                    ),
+                    h(
+                        Box,
+                        { style: { marginBottom: 16 } },
+                        h(
+                            "div",
+                            {
+                                style: {
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 10,
+                                    marginBottom: 10,
+                                },
+                            },
+                            h(Glyph, {
+                                name: b.icon,
+                                size: 22,
+                                color: C.text,
+                                accent: b.color || C.teal,
+                            }),
+                            h(
+                                "div",
+                                null,
+                                h(
+                                    "h3",
+                                    {
+                                        style: {
+                                            margin: 0,
+                                            fontSize: 18,
+                                            fontWeight: 800,
+                                            color: b.color,
+                                        },
+                                    },
+                                    b.label,
+                                ),
+                                h(
+                                    "p",
+                                    {
+                                        style: {
+                                            margin: 0,
+                                            fontSize: 13,
+                                            color: C.textMid,
+                                        },
+                                    },
+                                    b.tag,
+                                ),
+                            ),
+                        ),
+                        h(
+                            "p",
+                            {
+                                style: {
+                                    fontSize: 13,
+                                    color: C.textMid,
+                                    lineHeight: 1.7,
+                                    margin: "0 0 14px",
+                                },
+                            },
+                            b.desc,
+                        ),
+                        h(
+                            Fold,
+                            {
+                                title: "\ud83d\udd11 Key Behaviours",
+                                open: true,
+                            },
+                            b.beh.map(function (x, i) {
+                                return h(
+                                    "div",
+                                    {
+                                        key: i,
+                                        style: {
+                                            display: "flex",
+                                            gap: 8,
+                                            marginBottom: 8,
+                                        },
+                                    },
+                                    h(
+                                        "div",
+                                        {
+                                            style: {
+                                                width: 20,
+                                                height: 20,
+                                                background: b.colorBg,
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                fontSize: 11,
+                                                fontWeight: 700,
+                                                color: b.color,
+                                                flexShrink: 0,
+                                            },
+                                        },
+                                        i + 1,
+                                    ),
+                                    h(
+                                        "div",
+                                        {
+                                            style: {
+                                                fontSize: 13,
+                                                color: C.textMid,
+                                                lineHeight: 1.6,
+                                            },
+                                        },
+                                        x,
+                                    ),
+                                );
+                            }),
+                        ),
+                        h(
+                            Fold,
+                            { title: "\ud83d\udca1 Example Objectives" },
+                            b.ex.map(function (e, i) {
+                                return h(
+                                    "div",
+                                    {
+                                        key: i,
+                                        style: {
+                                            padding: 10,
+                                            background: C.bgSoft,
+                                            marginBottom: 6,
+                                            fontSize: 13,
+                                            color: C.textMid,
+                                            lineHeight: 1.6,
+                                        },
+                                    },
+                                    e,
+                                );
+                            }),
+                        ),
+                    ),
+                    h(
+                        Box,
+                        { style: {} },
+                        h(
+                            Tag,
+                            { color: b.color, bg: b.colorBg },
+                            b.label + " Objective",
+                        ),
+                        h(
+                            "div",
+                            { style: { marginTop: 12, marginBottom: 10 } },
+                            h(
+                                "label",
+                                {
+                                    style: {
+                                        fontSize: 12,
+                                        fontWeight: 600,
+                                        color: C.textMid,
+                                        display: "block",
+                                        marginBottom: 5,
+                                    },
+                                },
+                                "Your " + b.label + " Objective",
+                            ),
+                            h(Inp, {
+                                multi: true,
+                                value: d.objective,
+                                onChange: function (e) {
+                                    upd("objective", e.target.value);
+                                },
+                                placeholder:
+                                    "What specific, observable behaviour will you commit to?",
+                            }),
+                        ),
+                        h(
+                            "div",
+                            null,
+                            h(
+                                "label",
+                                {
+                                    style: {
+                                        fontSize: 12,
+                                        fontWeight: 600,
+                                        color: C.textMid,
+                                        display: "block",
+                                        marginBottom: 5,
+                                    },
+                                },
+                                "Evidence",
+                            ),
+                            h(Inp, {
+                                multi: true,
+                                value: d.evidence,
+                                onChange: function (e) {
+                                    upd("evidence", e.target.value);
+                                },
+                                placeholder:
+                                    "What will others see differently?",
+                            }),
+                        ),
+                        h(SmartCheck, {
+                            obj: {
+                                title: d.objective || "",
+                                detail: d.evidence || "",
+                                measure: "",
+                            },
+                            tips: {
+                                S: "Name the behaviour. 'Lead the launch project ensuring all contributors report clear roles and safety' not 'be a better leader'.",
+                                M: "Peer feedback, delivery outcomes, observable changes.",
+                                A: "Stretch from current behaviour?",
+                                R: "Connected to development areas or team priorities?",
+                                T: "When start, check, assess?",
+                            },
+                        }),
+                    ),
+                );
+            }
+
+            // Review
+            function ReviewTab({ objs, howObjs, setObjs, setHowObjs }) {
+                var tw = CATS.reduce(function (a, c) {
+                    return (
+                        a +
+                        (objs[c.id] || []).filter(function (o) {
+                            return o.title.trim();
+                        }).length
+                    );
+                }, 0);
+                var th = Object.values(howObjs).filter(function (x) {
+                    return x.objective && x.objective.trim();
+                }).length;
+                var tot = tw + th;
+                var pct = Math.min(100, Math.round((tot / 6) * 100));
+                function esc(s) {
+                    if (!s) return "";
+                    if (
+                        s.indexOf(",") > -1 ||
+                        s.indexOf('"') > -1 ||
+                        s.indexOf("\n") > -1
+                    )
+                        return '"' + s.replace(/"/g, '""') + '"';
+                    return s;
+                }
+                function copy() {
+                    var t =
+                        "MY OBJECTIVES 2026/27\n" +
+                        "=".repeat(50) +
+                        "\n\nTHE WHAT (70%)\n" +
+                        "-".repeat(30) +
+                        "\n\n";
+                    CATS.forEach(function (c) {
+                        var os = (objs[c.id] || []).filter(function (o) {
+                            return o.title.trim();
+                        });
+                        t +=
+                            c.icon +
+                            " " +
+                            c.label.toUpperCase() +
+                            " (" +
+                            c.weight +
+                            ")\n";
+                        if (!os.length) t += "   [Not entered]\n\n";
+                        else {
+                            os.forEach(function (o, i) {
+                                t +=
+                                    "\n   Objective " +
+                                    (i + 1) +
+                                    ": " +
+                                    o.title +
+                                    "\n";
+                                if (o.detail)
+                                    t += "   Detail: " + o.detail + "\n";
+                                if (o.measure)
+                                    t += "   Measure: " + o.measure + "\n";
+                            });
+                            t += "\n";
+                        }
+                    });
+                    t += "\nTHE HOW (30%)\n" + "-".repeat(30) + "\n\n";
+                    HOWS.forEach(function (b) {
+                        var d = howObjs[b.id];
+                        if (d && d.objective && d.objective.trim()) {
+                            t +=
+                                b.icon +
+                                " " +
+                                b.label +
+                                ": " +
+                                b.tag +
+                                "\n   Objective: " +
+                                d.objective +
+                                "\n";
+                            if (d.evidence)
+                                t += "   Evidence: " + d.evidence + "\n";
+                            t += "\n";
+                        }
+                    });
+                    navigator.clipboard
+                        .writeText(t)
+                        .then(function () {
+                            alert("Copied to clipboard!");
+                        })
+                        .catch(function () {
+                            var bl = new Blob([t], { type: "text/plain" });
+                            var u = URL.createObjectURL(bl);
+                            var a = document.createElement("a");
+                            a.href = u;
+                            a.download = "My_Objectives_2026.txt";
+                            a.click();
+                        });
+                }
+                function exportCSV() {
+                    var rows = [
+                        [
+                            "Section",
+                            "Category",
+                            "Objective #",
+                            "Title",
+                            "Detail",
+                            "Success Measure / Evidence",
+                        ],
+                    ];
+                    CATS.forEach(function (c) {
+                        var os = (objs[c.id] || []).filter(function (o) {
+                            return o.title.trim();
+                        });
+                        if (os.length) {
+                            os.forEach(function (o, i) {
+                                rows.push([
+                                    "What (70%)",
+                                    c.label,
+                                    (i + 1).toString(),
+                                    o.title,
+                                    o.detail,
+                                    o.measure,
+                                ]);
+                            });
+                        } else {
+                            rows.push(["What (70%)", c.label, "", "", "", ""]);
+                        }
+                    });
+                    HOWS.forEach(function (b) {
+                        var d = howObjs[b.id];
+                        if (d && d.objective && d.objective.trim()) {
+                            rows.push([
+                                "How (30%)",
+                                b.label,
+                                "1",
+                                d.objective,
+                                d.evidence,
+                                "",
+                            ]);
+                        } else {
+                            rows.push(["How (30%)", b.label, "", "", "", ""]);
+                        }
+                    });
+                    var csv = rows
+                        .map(function (r) {
+                            return r.map(esc).join(",");
+                        })
+                        .join("\n");
+                    var bom = "\uFEFF";
+                    var bl = new Blob([bom + csv], {
+                        type: "text/csv;charset=utf-8;",
+                    });
+                    var u = URL.createObjectURL(bl);
+                    var a = document.createElement("a");
+                    a.href = u;
+                    a.download = "My_Objectives_2026.csv";
+                    a.click();
+                    URL.revokeObjectURL(u);
+                }
+                function parseCSV(text) {
+                    var rows = [];
+                    var cur = "";
+                    var inQ = false;
+                    var row = [];
+                    for (var i = 0; i < text.length; i++) {
+                        var ch = text[i];
+                        if (inQ) {
+                            if (ch === '"') {
+                                if (
+                                    i + 1 < text.length &&
+                                    text[i + 1] === '"'
+                                ) {
+                                    cur += '"';
+                                    i++;
+                                } else {
+                                    inQ = false;
+                                }
+                            } else {
+                                cur += ch;
+                            }
+                        } else {
+                            if (ch === '"') {
+                                inQ = true;
+                            } else if (ch === ",") {
+                                row.push(cur);
+                                cur = "";
+                            } else if (ch === "\n" || ch === "\r") {
+                                if (
+                                    ch === "\r" &&
+                                    i + 1 < text.length &&
+                                    text[i + 1] === "\n"
+                                )
+                                    i++;
+                                row.push(cur);
+                                rows.push(row);
+                                row = [];
+                                cur = "";
+                            } else {
+                                cur += ch;
+                            }
+                        }
+                    }
+                    row.push(cur);
+                    if (
+                        row.some(function (c) {
+                            return c.trim();
+                        })
+                    )
+                        rows.push(row);
+                    return rows;
+                }
+                function importCSV(e) {
+                    var file = e.target.files[0];
+                    if (!file) return;
+                    var reader = new FileReader();
+                    reader.onload = function (ev) {
+                        try {
+                            var rows = parseCSV(ev.target.result);
+                            var header = rows[0];
+                            if (!header || header.length < 5) {
+                                alert(
+                                    "CSV format not recognised. Please use a file exported from this tool.",
+                                );
+                                return;
+                            }
+                            var data = rows.slice(1);
+                            var newObjs = {
+                                financials: [],
+                                other: [],
+                                people: [],
+                            };
+                            var newHow = {
+                                lead: { objective: "", evidence: "" },
+                                shape: { objective: "", evidence: "" },
+                                connect: { objective: "", evidence: "" },
+                                deliver: { objective: "", evidence: "" },
+                            };
+                            var catMap = {
+                                "Financial Objectives": "financials",
+                                "Above BAU Projects": "other",
+                                "People & Engagement": "people",
+                            };
+                            var howMap = {
+                                LEAD: "lead",
+                                SHAPE: "shape",
+                                CONNECT: "connect",
+                                DELIVER: "deliver",
+                            };
+                            data.forEach(function (r) {
+                                if (!r || r.length < 5) return;
+                                var section = (r[0] || "").trim();
+                                var category = (r[1] || "").trim();
+                                var title = (r[3] || "").trim();
+                                var detail = (r[4] || "").trim();
+                                var measure = (r[5] || "").trim();
+                                if (section.indexOf("What") > -1) {
+                                    var key = catMap[category];
+                                    if (key && title) {
+                                        newObjs[key].push({
+                                            title: title,
+                                            detail: detail,
+                                            measure: measure,
+                                        });
+                                    }
+                                } else if (section.indexOf("How") > -1) {
+                                    var hkey = howMap[category];
+                                    if (hkey && title) {
+                                        newHow[hkey] = {
+                                            objective: title,
+                                            evidence: detail,
+                                        };
+                                    }
+                                }
+                            });
+                            if (!newObjs.financials.length)
+                                newObjs.financials = [
+                                    { title: "", detail: "", measure: "" },
+                                ];
+                            if (!newObjs.other.length)
+                                newObjs.other = [
+                                    { title: "", detail: "", measure: "" },
+                                ];
+                            if (!newObjs.people.length)
+                                newObjs.people = [
+                                    { title: "", detail: "", measure: "" },
+                                ];
+                            setObjs(newObjs);
+                            setHowObjs(newHow);
+                            alert(
+                                "Imported successfully! Switch to Build or How tabs to review.",
+                            );
+                        } catch (err) {
+                            alert("Error reading CSV: " + err.message);
+                        }
+                    };
+                    reader.readAsText(file);
+                    e.target.value = "";
+                }
+                var fileRef = useState(null);
+                return h(
+                    "div",
+                    null,
+                    h(
+                        "div",
+                        { style: { textAlign: "center", marginBottom: 24 } },
+                        h(
+                            "h2",
+                            {
+                                style: {
+                                    fontSize: 30,
+                                    fontWeight: 800,
+                                    color: C.text,
+                                },
+                            },
+                            "Review & Export",
+                        ),
+                    ),
+                    // Action bar
+                    h(
+                        Box,
+                        { style: {} },
+                        h(
+                            "div",
+                            {
+                                style: {
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 16,
+                                    flexWrap: "wrap",
+                                },
+                            },
+                            // Progress
+                            h(
+                                "div",
+                                null,
+                                h(
+                                    "div",
+                                    {
+                                        style: {
+                                            fontSize: 28,
+                                            fontWeight: 800,
+                                            color: C.teal,
+                                        },
+                                    },
+                                    pct + "%",
+                                ),
+                                h(
+                                    "div",
+                                    {
+                                        style: {
+                                            fontSize: 12,
+                                            color: C.textLight,
+                                        },
+                                    },
+                                    tot + " of ~6",
+                                ),
+                            ),
+                            h(
+                                "div",
+                                { style: { flex: 1 } },
+                                h(
+                                    "div",
+                                    {
+                                        style: {
+                                            fontSize: 14,
+                                            fontWeight: 700,
+                                            color: C.text,
+                                        },
+                                    },
+                                    tw + " What \u00b7 " + th + " How",
+                                ),
+                            ),
+                            // Buttons
+                            h(
+                                "div",
+                                {
+                                    style: {
+                                        display: "flex",
+                                        gap: 8,
+                                        flexWrap: "wrap",
+                                    },
+                                },
+                                h(
+                                    "button",
+                                    {
+                                        onClick: copy,
+                                        style: {
+                                            padding: "10px 20px",
+                                            border: "none",
+                                            background: "#22C55E",
+                                            color: "#071326",
+                                            fontSize: 12,
+                                            fontWeight: 700,
+                                        },
+                                    },
+                                    "Copy Text",
+                                ),
+                                h(
+                                    "button",
+                                    {
+                                        onClick: exportCSV,
+                                        style: {
+                                            padding: "10px 20px",
+                                            border: "none",
+                                            background: "#EF4444",
+                                            color: "#071326",
+                                            fontSize: 12,
+                                            fontWeight: 700,
+                                        },
+                                    },
+                                    "Export CSV",
+                                ),
+                                h(
+                                    "button",
+                                    {
+                                        onClick: function () {
+                                            document
+                                                .getElementById("csv-import")
+                                                .click();
+                                        },
+                                        style: {
+                                            padding: "10px 20px",
+                                            border: "none",
+                                            background: "#E5E7EB",
+                                            color: "#071326",
+                                            fontSize: 12,
+                                            fontWeight: 700,
+                                        },
+                                    },
+                                    "Import CSV",
+                                ),
+                                h("input", {
+                                    id: "csv-import",
+                                    type: "file",
+                                    accept: ".csv",
+                                    style: { display: "none" },
+                                    onChange: importCSV,
+                                }),
+                            ),
+                        ),
+                        h(
+                            "p",
+                            {
+                                style: {
+                                    fontSize: 11,
+                                    color: C.textLight,
+                                    marginTop: 12,
+                                    lineHeight: 1.5,
+                                },
+                            },
+                            "Export CSV to save your work or share with your manager. Import CSV to reload previously saved objectives or continue editing.",
+                        ),
+                    ),
+                    h(
+                        "h3",
+                        {
+                            style: {
+                                fontSize: 14,
+                                fontWeight: 700,
+                                color: C.navy,
+                                margin: "20px 0 10px",
+                            },
+                        },
+                        "The What",
+                    ),
+                    CATS.map(function (c) {
+                        var os = (objs[c.id] || []).filter(function (o) {
+                            return o.title.trim();
+                        });
+                        return h(
+                            Box,
+                            { key: c.id, style: {} },
+                            h(
+                                "div",
+                                {
+                                    style: {
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: 6,
+                                        marginBottom: 8,
+                                    },
+                                },
+                                h(Glyph, {
+                                    name: c.icon,
+                                    size: 16,
+                                    color: C.textMid,
+                                    accent: c.color || C.teal,
+                                }),
+                                h(
+                                    "span",
+                                    {
+                                        style: {
+                                            fontSize: 13,
+                                            fontWeight: 700,
+                                            color: C.text,
+                                        },
+                                    },
+                                    c.label,
+                                ),
+                                h(Tag, { bg: C.bgSoft }, c.weight),
+                            ),
+                            !os.length
+                                ? h(
+                                      "div",
+                                      {
+                                          style: {
+                                              fontSize: 12,
+                                              color: C.textLight,
+                                              fontStyle: "italic",
+                                          },
+                                      },
+                                      "Not entered",
+                                  )
+                                : os.map(function (o, i) {
+                                      return h(
+                                          "div",
+                                          {
+                                              key: i,
+                                              style: {
+                                                  padding: 10,
+                                                  background: C.bgSoft,
+                                                  marginBottom: 6,
+                                              },
+                                          },
+                                          h(
+                                              "div",
+                                              {
+                                                  style: {
+                                                      fontSize: 13,
+                                                      fontWeight: 700,
+                                                      color: C.text,
+                                                      marginBottom: 3,
+                                                  },
+                                              },
+                                              o.title,
+                                          ),
+                                          o.detail &&
+                                              h(
+                                                  "div",
+                                                  {
+                                                      style: {
+                                                          fontSize: 12,
+                                                          color: C.textMid,
+                                                          lineHeight: 1.6,
+                                                          marginBottom: 3,
+                                                      },
+                                                  },
+                                                  o.detail,
+                                              ),
+                                          o.measure &&
+                                              h(
+                                                  "div",
+                                                  {
+                                                      style: {
+                                                          fontSize: 11,
+                                                          color: "#86EFAC",
+                                                          fontWeight: 600,
+                                                      },
+                                                  },
+                                                  "\ud83d\udccf " + o.measure,
+                                              ),
+                                      );
+                                  }),
+                        );
+                    }),
+                    h(
+                        "h3",
+                        {
+                            style: {
+                                fontSize: 14,
+                                fontWeight: 700,
+                                color: C.navy,
+                                margin: "20px 0 10px",
+                            },
+                        },
+                        "The How",
+                    ),
+                    HOWS.map(function (b) {
+                        var d = howObjs[b.id];
+                        var has = d && d.objective && d.objective.trim();
+                        return h(
+                            Box,
+                            { key: b.id, style: { opacity: has ? 1 : 0.5 } },
+                            h(
+                                "div",
+                                {
+                                    style: {
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: 6,
+                                        marginBottom: has ? 8 : 0,
+                                    },
+                                },
+                                h(Glyph, {
+                                    name: b.icon,
+                                    size: 16,
+                                    color: C.textMid,
+                                    accent: b.color || C.teal,
+                                }),
+                                h(
+                                    "span",
+                                    {
+                                        style: {
+                                            fontSize: 13,
+                                            fontWeight: 700,
+                                            color: b.color,
+                                        },
+                                    },
+                                    b.label,
+                                ),
+                                h(
+                                    "span",
+                                    {
+                                        style: {
+                                            fontSize: 11,
+                                            color: C.textLight,
+                                        },
+                                    },
+                                    b.tag,
+                                ),
+                            ),
+                            has
+                                ? h(
+                                      "div",
+                                      {
+                                          style: {
+                                              padding: 10,
+                                              background: C.bgSoft,
+                                          },
+                                      },
+                                      h(
+                                          "div",
+                                          {
+                                              style: {
+                                                  fontSize: 12,
+                                                  color: C.textMid,
+                                                  lineHeight: 1.6,
+                                              },
+                                          },
+                                          d.objective,
+                                      ),
+                                      d.evidence &&
+                                          h(
+                                              "div",
+                                              {
+                                                  style: {
+                                                      fontSize: 11,
+                                                      color: "#86EFAC",
+                                                      fontWeight: 600,
+                                                      marginTop: 6,
+                                                  },
+                                              },
+                                              "\ud83d\udccf " + d.evidence,
+                                          ),
+                                  )
+                                : h(
+                                      "div",
+                                      {
+                                          style: {
+                                              fontSize: 11,
+                                              color: C.textLight,
+                                          },
+                                      },
+                                      "Not selected",
+                                  ),
+                        );
+                    }),
+                );
+            }
+
+            // App
+            function App() {
+                var s1 = useState("welcome"),
+                    tab = s1[0],
+                    setTab = s1[1];
+                var s2 = useState({
+                    financials: [{ title: "", detail: "", measure: "" }],
+                    other: [{ title: "", detail: "", measure: "" }],
+                    people: [{ title: "", detail: "", measure: "" }],
+                });
+                var s3 = useState({
+                    lead: { objective: "", evidence: "" },
+                    shape: { objective: "", evidence: "" },
+                    connect: { objective: "", evidence: "" },
+                    deliver: { objective: "", evidence: "" },
+                });
+                return h(
+                    "div",
+                    {
+                        style: {
+                            minHeight: "100vh",
+                            background: C.bg,
+                            display: "flex",
+                            flexDirection: "column",
+                        },
+                    },
+                    h(
+                        "div",
+                        {
+                            style: {
+                                borderBottom: "1px solid " + C.border,
+                                background: C.bg,
+                            },
+                        },
+                        h(
+                            "div",
+                            {
+                                style: {
+                                    maxWidth: 1240,
+                                    margin: "0 auto",
+                                    padding: "32px 28px 18px",
+                                    display: "grid",
+                                    gridTemplateColumns: "1fr auto",
+                                    alignItems: "center",
+                                    gap: 24,
+                                },
+                            },
+                            h(
+                                "div",
+                                null,
+                                h(
+                                    "div",
+                                    {
+                                        style: {
+                                            fontSize: 11,
+                                            fontWeight: 700,
+                                            letterSpacing: 1.5,
+                                            textTransform: "uppercase",
+                                            color: C.textLight,
+                                            marginBottom: 10,
+                                        },
+                                    },
+                                    "Sharper objectives. Clearer outcomes.",
+                                ),
+                                h("div",{style:{display:"flex",alignItems:"center",gap:14}},
+                                  h("svg",{width:52,height:52,viewBox:"0 0 24 24",fill:"none",xmlns:"http://www.w3.org/2000/svg",style:{flexShrink:0}},
+                                    h("rect",{x:1,y:1,width:22,height:22,rx:5,fill:"#0D182B",stroke:"#1A2940",strokeWidth:0.5}),
+                                    h("g",{fill:"rgba(255,255,255,0.18)"},
+                                      h("circle",{cx:6,cy:14,r:0.6}),
+                                      h("circle",{cx:8,cy:16,r:0.6}),
+                                      h("circle",{cx:10,cy:18,r:0.6}),
+                                      h("circle",{cx:5,cy:18,r:0.6}),
+                                      h("circle",{cx:7,cy:20,r:0.6}),
+                                      h("circle",{cx:9,cy:14,r:0.6})
+                                    ),
+                                    h("path",{d:"M5 5 L19 19",stroke:"#E6B85C",strokeWidth:2,strokeLinecap:"round"})
+                                  ),
+                                  h("h1",{style:{fontSize:56,lineHeight:1.02,fontWeight:800,letterSpacing:-2.2,margin:0,color:C.text}},"Clear Cut")
+                                ),
+                            ),
+                            h(
+                                "div",
+                                {
+                                    style: {
+                                        fontSize: 18,
+                                        color: C.textMid,
+                                        textAlign: "right",
+                                        lineHeight: 1.6,
+                                        maxWidth: 480,
+                                        fontWeight: 500,
+                                    },
+                                },
+                                "Helping you write sharper, more measurable annual objectives.",
+                            ),
+                        ),
+                    ),
+                    h(
+                        "div",
+                        {
+                            style: {
+                                background: "transparent",
+                                overflow: "hidden",
+                                flex: 1,
+                            },
+                        },
+                        h(
+                            "div",
+                            {
+                                style: {
+                                    position: "sticky",
+                                    top: 0,
+                                    zIndex: 10,
+                                    background: C.bgSoft,
+                                    marginBottom: 6,
+                                },
+                            },
+                            h(
+                                "div",
+                                {
+                                    style: {
+                                        maxWidth: 1240,
+                                        margin: "0 auto",
+                                        padding: "0 28px 10px",
+                                        display: "flex",
+                                        overflowX: "auto",
+                                        gap: 10,
+                                    },
+                                },
+                                TABS.map(function (t) {
+                                    return h(
+                                        "button",
+                                        {
+                                            key: t.id,
+                                            onClick: function () {
+                                                setTab(t.id);
+                                            },
+                                            style: {
+                                                padding: "14px 18px",
+                                                border: "none",
+                                                background:
+                                                    tab === t.id
+                                                        ? t.id === "how"
+                                                            ? "#EF4444"
+                                                            : t.id === "build"
+                                                              ? "#E6B85C"
+                                                              : "#22C55E"
+                                                        : "transparent",
+                                                color:
+                                                    tab === t.id
+                                                        ? "#071326"
+                                                        : C.text,
+                                                fontWeight:
+                                                    tab === t.id ? 800 : 650,
+                                                fontSize: 14,
+                                                whiteSpace: "nowrap",
+                                                display: "flex",
+                                                alignItems: "center",
+                                                gap: 10,
+                                            },
+                                        },
+                                        h(Glyph, {
+                                            name: t.icon,
+                                            size: 15,
+                                            color:
+                                                tab === t.id
+                                                    ? "#071326"
+                                                    : C.textMid,
+                                            accent:
+                                                tab === t.id
+                                                    ? "#071326"
+                                                    : t.id === "how"
+                                                      ? "#EF4444"
+                                                      : t.id === "build"
+                                                        ? "#E6B85C"
+                                                        : "#22C55E",
+                                        }),
+                                        " " + t.label,
+                                    );
+                                }),
+                            ),
+                        ),
+                        h(
+                            "div",
+                            {
+                                style: {
+                                    maxWidth: 1240,
+                                    margin: "0 auto",
+                                    padding: "40px 28px 56px",
+                                },
+                            },
+                            tab === "welcome" &&
+                                h(Welcome, {
+                                    go: function () {
+                                        setTab("overview");
+                                    },
+                                }),
+                            tab === "overview" && h(Overview),
+                            tab === "build" &&
+                                h(Build, { objs: s2[0], setObjs: s2[1] }),
+                            tab === "how" &&
+                                h(HowTab, {
+                                    howObjs: s3[0],
+                                    setHowObjs: s3[1],
+                                }),
+                            tab === "review" &&
+                                h(ReviewTab, {
+                                    objs: s2[0],
+                                    howObjs: s3[0],
+                                    setObjs: s2[1],
+                                    setHowObjs: s3[1],
+                                }),
+                        ),
+                    ),
+                    h(
+                        "div",
+                        {
+                            style: {
+                                borderTop: "1px solid " + C.border,
+                                marginTop: 8,
+                                background: C.bgSoft,
+                            },
+                        },
+                        h(
+                            "div",
+                            {
+                                style: {
+                                    maxWidth: 1240,
+                                    margin: "0 auto",
+                                    padding: "14px 24px",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 20,
+                                    flexWrap: "wrap",
+                                    fontSize: 12,
+                                    color: C.textLight,
+                                },
+                            },
+                            h(
+                                "span",
+                                {
+                                    style: {
+                                        fontWeight: 700,
+                                        color: C.textMid,
+                                        whiteSpace: "nowrap",
+                                    },
+                                },
+                                h(
+                                    "svg",
+                                    {
+                                        xmlns: "http://www.w3.org/2000/svg",
+                                        width: 14,
+                                        height: 14,
+                                        viewBox: "0 0 24 24",
+                                        fill: "#0a66c2",
+                                        style: {
+                                            verticalAlign: "-2px",
+                                            marginRight: 4,
+                                        },
+                                    },
+                                    h("rect", {
+                                        width: 20,
+                                        height: 20,
+                                        x: 2,
+                                        y: 2,
+                                        rx: 4,
+                                    }),
+                                    h("path", {
+                                        fill: "white",
+                                        d: "M8 10h-2v7h2v-7zm-1-3.2a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4zm9 3c-1.2 0-2 .6-2.3 1.2V10h-2v7h2v-3.8c0-.9.7-1.7 1.6-1.7.9 0 1.4.8 1.4 1.7V17h2v-4c0-1.7-1-3.2-2.7-3.2z",
+                                    }),
+                                ),
+                                "Built by ",
+                                h(
+                                    "a",
+                                    {
+                                        href: "https://www.linkedin.com/in/ahmedsidat/",
+                                        target: "_blank",
+                                        rel: "noopener noreferrer",
+                                        style: {
+                                            color: C.textMid,
+                                            textDecoration: "none",
+                                            fontWeight: 700,
+                                        },
+                                    },
+                                    "Ahmed Sidat",
+                                ),
+                            ),
+                            h(
+                                "span",
+                                {
+                                    style: {
+                                        flex: 1,
+                                        fontStyle: "italic",
+                                        color: C.textLight,
+                                        minWidth: 0,
+                                    },
+                                },
+                                "Exploring the nexus between leadership, next-gen sales and marketing mastery",
+                            ),
+                            h(
+                                "span",
+                                {
+                                    style: {
+                                        whiteSpace: "nowrap",
+                                        color: C.textLight,
+                                    },
+                                },
+                                "© " +
+                                    new Date().getFullYear() +
+                                    " Ahmed Sidat. All rights reserved.",
+                            ),
+                        ),
+                    ),
+                );
+            }
+
+            ReactDOM.render(h(App), document.getElementById("root"));
+        </script>
+    </body>
+</html>
